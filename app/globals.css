@@ -99,19 +99,22 @@
 }
 
 /* 検索ボックスのカスタムスタイル */
-.search-textarea {
-  font-size: 17px !important;
-  line-height: 1.5 !important;
-  border: 2px solid hsl(0 0% 75%) !important;
+.search-input {
+  font-size: 20px !important;
+  line-height: 1.4 !important;
+  height: 64px !important;
+  padding: 16px 50px 16px 20px !important;
+  border: 1px solid hsl(0 0% 75%) !important;
+  border-radius: 12px !important;
   transition: border-color 0.2s ease-in-out !important;
 }
 
-.search-textarea:focus {
+.search-input:focus {
   border-color: hsl(0 0% 50%) !important;
   box-shadow: 0 0 0 2px hsl(0 0% 50% / 0.1) !important;
 }
 
-.search-textarea::placeholder {
-  font-size: 17px !important;
+.search-input::placeholder {
+  font-size: 20px !important;
   opacity: 0.6;
 }

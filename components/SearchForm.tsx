@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 
@@ -33,35 +33,25 @@ export default function SearchForm({ onSearch, isLoading = false, searchStatus =
     setQuery(keyword)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      if (query.trim()) {
-        onSearch(query.trim())
-      }
-    }
-  }
-
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="relative">
-        <Textarea
+        <Input
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
           placeholder="本日はどのようなお手伝いをさせていただけますか？"
           disabled={isLoading}
-          className="min-h-[80px] resize-none pr-12 search-textarea"
-          rows={2}
+          className="pr-12 search-input"
         />
         <Button
           type="submit"
           disabled={isLoading || !query.trim()}
           size="icon"
           variant="ghost"
-          className="absolute bottom-2 right-2 h-8 w-8 hover:bg-transparent"
+          className="absolute top-1/2 right-3 -translate-y-1/2 h-10 w-10 hover:bg-transparent"
         >
-          <Search className="h-5 w-5 text-muted-foreground" />
+          <Search className="h-6 w-6 text-muted-foreground" />
         </Button>
       </form>
 
