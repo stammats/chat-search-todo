@@ -11,11 +11,12 @@ interface SearchFormProps {
 }
 
 const trendingKeywords = [
-  '建設業を始めたい',
-  '飲食店を開きたい',
-  '中古品販売を始めたい',
-  '不動産業を始めたい',
-  '産廃業を始めたい'
+  '観光地でレンタカー業を始めたい',
+  '酒造の事業承継手続き',
+  'インバウンド向け民泊事業',
+  'ドローン配送サービス許可',
+  'キッチンカーでの食品販売',
+  '地方創生での農業法人設立'
 ]
 
 export default function SearchForm({ onSearch, isLoading = false, searchStatus = '' }: SearchFormProps) {
@@ -70,19 +71,22 @@ export default function SearchForm({ onSearch, isLoading = false, searchStatus =
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        {trendingKeywords.map((keyword, index) => (
-          <Button
-            key={index}
-            variant="outline"
-            size="sm"
-            onClick={() => handleTrendingClick(keyword)}
-            disabled={isLoading}
-            className="text-xs h-7 px-3"
-          >
-            {keyword}
-          </Button>
-        ))}
+      <div className="mt-6">
+        <p className="text-sm font-medium text-center mb-3 text-gray-600">よく検索される手続き</p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {trendingKeywords.map((keyword, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              size="sm"
+              onClick={() => handleTrendingClick(keyword)}
+              disabled={isLoading}
+              className="text-sm h-8 px-4 hover:bg-gray-50 hover:border-gray-400 transition-colors"
+            >
+              {keyword}
+            </Button>
+          ))}
+        </div>
       </div>
     
     </div>
