@@ -46,26 +46,26 @@ export class KeywordExpander {
     return result
   }
 
-  private matchesIndustry(query: string, industryData: any): boolean {
+  private matchesIndustry(query: string, industryData: { primaryKeywords: string[], [key: string]: unknown }): boolean {
     return industryData.primaryKeywords.some((keyword: string) => 
       query.includes(keyword)
     )
   }
 
-  private expandSubcategories(query: string, industryData: any, result: KeywordExpansion) {
+  private expandSubcategories(query: string, industryData: { [key: string]: unknown }, result: KeywordExpansion) {
     // 各階層を再帰的に検索
     for (const [categoryName, categoryData] of Object.entries(industryData)) {
       if (categoryName === 'primaryKeywords') continue
       
-      this.searchInCategory(query, categoryName, categoryData as any, result)
+      this.searchInCategory(query, categoryName, categoryData as { [key: string]: unknown }, result)
     }
   }
 
-  private searchInCategory(query: string, categoryName: string, categoryData: any, result: KeywordExpansion) {
+  private searchInCategory(query: string, categoryName: string, categoryData: { [key: string]: unknown }, result: KeywordExpansion) {
     for (const [subName, subData] of Object.entries(categoryData)) {
       if (typeof subData === 'object' && subData !== null && 'keywords' in subData && 'relatedProcedures' in subData) {
-        const keywords = (subData as any).keywords as string[]
-        const procedures = (subData as any).relatedProcedures as string[]
+        const keywords = (subData as { keywords: string[], relatedProcedures: string[] }).keywords
+        const procedures = (subData as { keywords: string[], relatedProcedures: string[] }).relatedProcedures
         
         const matches = keywords.some((keyword: string) => 
           query.includes(keyword)
@@ -98,10 +98,10 @@ export class KeywordExpander {
       for (const [categoryName, categoryData] of Object.entries(data)) {
         if (categoryName === 'primaryKeywords') continue
         
-        for (const [subName, subData] of Object.entries(categoryData as any)) {
+        for (const [subName, subData] of Object.entries(categoryData as { [key: string]: unknown })) {
           if (typeof subData === 'object' && subData !== null && 'keywords' in subData && 'relatedProcedures' in subData) {
-            const keywords = (subData as any).keywords as string[]
-            const procedures = (subData as any).relatedProcedures as string[]
+            const keywords = (subData as { keywords: string[], relatedProcedures: string[] }).keywords
+            const procedures = (subData as { keywords: string[], relatedProcedures: string[] }).relatedProcedures
             
             const partialMatch = keywords.some((keyword: string) => 
               keyword.includes(query) || query.includes(keyword)
@@ -168,16 +168,16 @@ export class KeywordExpander {
     return [...new Set(procedures)] // 重複除去
   }
 
-  private collectAllProcedures(data: any, procedures: string[]) {
+  private collectAllProcedures(data: { [key: string]: unknown }, procedures: string[]) {
     for (const [key, value] of Object.entries(data)) {
       if (key === 'primaryKeywords') continue
       
       if (typeof value === 'object' && value !== null) {
-        if ('relatedProcedures' in value && Array.isArray((value as any).relatedProcedures)) {
-          procedures.push(...(value as any).relatedProcedures)
-        } else {
-          this.collectAllProcedures(value, procedures)
-        }
+        if ('relatedProcedures' in value && Array.isArray((value as { relatedProcedures: string[] }).relatedProcedures)) {
+          procedures.push(...(value as { relatedProcedures: string[] }).relatedProcedures)
+                  } else {
+            this.collectAllProcedures(value as { [key: string]: unknown }, procedures)
+          }
       }
     }
   }

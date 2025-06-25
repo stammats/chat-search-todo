@@ -144,7 +144,7 @@ export class GeminiClient {
     }
   }
 
-  private createEnhancedPrompt(searchResults: SearchResult[], query: string, expansion: any): string {
+  private createEnhancedPrompt(searchResults: SearchResult[], query: string, expansion: { industryCategory: string, relatedProcedures: string[], subcategories: string[], expandedKeywords: string[] }): string {
     return `あなたは日本の行政手続きの専門家です。
 以下の情報を基に、ユーザーが必要な行政手続きを特定するための詳細な質問ツリーを生成してください。
 

@@ -133,7 +133,7 @@ export class BraveSearchClient {
     })) || []
   }
 
-  private deduplicateAndRank(results: SearchResult[], expansion: any): SearchResult[] {
+  private deduplicateAndRank(results: SearchResult[], expansion: { relatedProcedures: string[], expandedKeywords: string[] }): SearchResult[] {
     // URL重複除去
     const uniqueResults = results.filter((result, index, array) => 
       array.findIndex(r => r.url === result.url) === index
@@ -147,7 +147,7 @@ export class BraveSearchClient {
     })
   }
 
-  private calculateRelevanceScore(result: SearchResult, expansion: any): number {
+  private calculateRelevanceScore(result: SearchResult, expansion: { relatedProcedures: string[], expandedKeywords: string[] }): number {
     let score = 0
     const text = `${result.title} ${result.description}`.toLowerCase()
     

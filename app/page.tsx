@@ -1,8 +1,7 @@
 'use client'
 import { useState } from 'react'
-import dynamic from 'next/dynamic'
 import SearchForm from '@/components/SearchForm'
-import { DecisionTree, Procedure } from '@/lib/types'
+import { DecisionTree, Procedure, ProcedureList } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -36,7 +35,6 @@ export default function Home() {
   const [finalState, setFinalState] = useState<FinalState | null>(null)
   // const [viewMode, setViewMode] = useState<ViewMode>('question')
   const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [originalQuery, setOriginalQuery] = useState<string>('')
 
   const handleSearch = async (query: string) => {
     setIsLoading(true)
@@ -45,7 +43,6 @@ export default function Home() {
     setQuestionState(null)
     setFinalState(null)
     setAnswers({})
-    setOriginalQuery(query)
     
     try {
       // ポーリングでステータスを更新
@@ -150,7 +147,7 @@ export default function Home() {
   }
 
   // ローカルでツリーをナビゲートする関数
-  const navigateTreeLocally = (tree: DecisionTree | any, answers: Record<string, string>, depth: number = 0): {
+  const navigateTreeLocally = (tree: DecisionTree | ProcedureList, answers: Record<string, string>, depth: number = 0): {
     mode: 'question' | 'final'
     question?: string
     key?: string
@@ -217,11 +214,11 @@ export default function Home() {
     
     // 子ノードの詳細をログ出力
     console.log(`[Depth ${depth}] Children details:`)
-    tree.children.forEach((child: any, index: number) => {
+    tree.children.forEach((child: DecisionTree | ProcedureList, index: number) => {
       console.log(`  [${index}]:`, {
-        hasQuestion: !!child.question,
-        hasProcedureList: !!child.procedureList,
-        key: child.key
+        hasQuestion: 'question' in child ? !!child.question : false,
+        hasProcedureList: 'procedureList' in child,
+        key: 'key' in child ? child.key : undefined
       })
     })
     
@@ -232,7 +229,7 @@ export default function Home() {
         userAnswer
       })
       // エラー時は最初の有効な子ノードを使用
-      const firstValidChild = tree.children.find((child: any) => child && (child.question || child.procedureList))
+      const firstValidChild = tree.children.find((child: DecisionTree | ProcedureList) => child && ('question' in child || 'procedureList' in child))
       if (firstValidChild) {
         console.warn(`[Depth ${depth}] Using first valid child instead`)
         return navigateTreeLocally(firstValidChild, answers, depth + 1)
@@ -255,14 +252,14 @@ export default function Home() {
       <div className="container max-w-2xl mx-auto px-4">
         <div className="mb-8">
           <div className="flex justify-center mb-4">
-            <img 
-              src="/imoduru.png" 
-              alt="芋づるマスコット" 
-              className={`w-32 h-32 transition-all duration-300 ${
+            <div 
+              className={`w-32 h-32 bg-[url('/imoduru.png')] bg-contain bg-no-repeat bg-center transition-all duration-300 ${
                 isLoading 
                   ? 'animate-imoduru-search' 
                   : 'hover:scale-105'
               }`}
+              role="img"
+              aria-label="芋づるマスコット"
             />
           </div>
           <h1 className="text-4xl font-bold text-center mb-2">
