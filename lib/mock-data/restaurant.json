@@ -1,0 +1,642 @@
+{
+  "question": "どのような形態で営業しますか？",
+  "key": "restaurant_type",
+  "options": [
+    "店舗を構えて営業する（レストラン、カフェなど）",
+    "キッチンカーや屋台で移動販売する",
+    "デリバリー専門で営業する（実店舗なし）",
+    "イベントや催事への出店のみ",
+    "複数の形態を組み合わせる"
+  ],
+  "children": [
+    {
+      "question": "営業場所・店舗の規模は？",
+      "key": "store_size",
+      "options": [
+        "小規模店舗（席数30席未満）",
+        "中規模店舗（席数30〜100席）",
+        "大規模店舗（席数100席以上）",
+        "テイクアウト専門（イートインなし）",
+        "複合施設内（ショッピングモール等）"
+      ],
+      "children": [
+        {
+          "question": "提供する内容について教えてください",
+          "key": "food_service_type",
+          "options": [
+            "調理済み食品を提供（一般的な飲食店）",
+            "生肉・生魚を扱う（寿司、焼肉など）",
+            "製菓・パン製造販売",
+            "調理済み食品とお酒の提供",
+            "複数のカテゴリーを扱う"
+          ],
+          "children": [
+            {
+              "question": "アルコールの提供はありますか？",
+              "key": "alcohol_service",
+              "options": [
+                "アルコールは提供しない",
+                "ビール・ワインなど一般的なお酒を提供",
+                "深夜0時以降もお酒を提供する"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "FOOD-001",
+                      "name": "飲食店営業許可申請",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                      "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "16,000円〜20,000円"
+                    },
+                    {
+                      "procedure_id": "FIRE-001",
+                      "name": "防火対象物使用開始届出",
+                      "jurisdiction": "消防署",
+                      "url": "https://www.fdma.go.jp/",
+                      "requirements": "届出書、店舗図面、消防設備配置図",
+                      "deadline": "使用開始7日前まで",
+                      "fee": "無料"
+                    },
+                    {
+                      "procedure_id": "FIRE-002",
+                      "name": "防火管理者選任届出",
+                      "jurisdiction": "消防署",
+                      "url": "https://www.fdma.go.jp/",
+                      "requirements": "防火管理者資格証、選任届出書",
+                      "deadline": "選任後遅滞なく",
+                      "fee": "無料"
+                    },
+                    {
+                      "procedure_id": "HYGIENE-001",
+                      "name": "食品衛生責任者設置届",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/",
+                      "requirements": "食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "無料"
+                    }
+                  ]
+                },
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "FOOD-001",
+                      "name": "飲食店営業許可申請",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                      "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "16,000円〜20,000円"
+                    },
+                    {
+                      "procedure_id": "LIQUOR-001",
+                      "name": "酒類販売業免許申請",
+                      "jurisdiction": "税務署",
+                      "url": "https://www.nta.go.jp/",
+                      "requirements": "免許申請書、店舗図面、資金計画書",
+                      "deadline": "営業開始2ヶ月前",
+                      "fee": "30,000円"
+                    },
+                    {
+                      "procedure_id": "FIRE-001",
+                      "name": "防火対象物使用開始届出",
+                      "jurisdiction": "消防署",
+                      "url": "https://www.fdma.go.jp/",
+                      "requirements": "届出書、店舗図面、消防設備配置図",
+                      "deadline": "使用開始7日前まで",
+                      "fee": "無料"
+                    }
+                  ]
+                },
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "FOOD-001",
+                      "name": "飲食店営業許可申請",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                      "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "16,000円〜20,000円"
+                    },
+                    {
+                      "procedure_id": "NIGHT-001",
+                      "name": "深夜酒類提供飲食店営業届出",
+                      "jurisdiction": "警察署",
+                      "url": "https://www.keishicho.metro.tokyo.jp/",
+                      "requirements": "営業届出書、店舗図面、誓約書",
+                      "deadline": "営業開始10日前まで",
+                      "fee": "無料"
+                    },
+                    {
+                      "procedure_id": "LIQUOR-001",
+                      "name": "酒類販売業免許申請",
+                      "jurisdiction": "税務署",
+                      "url": "https://www.nta.go.jp/",
+                      "requirements": "免許申請書、店舗図面、資金計画書",
+                      "deadline": "営業開始2ヶ月前",
+                      "fee": "30,000円"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "FOOD-002",
+                  "name": "飲食店営業許可申請（生もの取扱）",
+                  "jurisdiction": "保健所",
+                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                  "requirements": "営業許可申請書、施設の図面、設備の詳細、食品衛生責任者",
+                  "deadline": "営業開始前",
+                  "fee": "20,000円〜25,000円"
+                },
+                {
+                  "procedure_id": "FIRE-001",
+                  "name": "防火対象物使用開始届出",
+                  "jurisdiction": "消防署",
+                  "url": "https://www.fdma.go.jp/",
+                  "requirements": "届出書、店舗図面、消防設備配置図",
+                  "deadline": "使用開始7日前まで",
+                  "fee": "無料"
+                }
+              ]
+            },
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "FOOD-003",
+                  "name": "菓子製造業許可申請",
+                  "jurisdiction": "保健所",
+                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                  "requirements": "営業許可申請書、製造施設の図面、食品衛生責任者",
+                  "deadline": "営業開始前",
+                  "fee": "16,000円〜20,000円"
+                },
+                {
+                  "procedure_id": "FIRE-001",
+                  "name": "防火対象物使用開始届出",
+                  "jurisdiction": "消防署",
+                  "url": "https://www.fdma.go.jp/",
+                  "requirements": "届出書、店舗図面、消防設備配置図",
+                  "deadline": "使用開始7日前まで",
+                  "fee": "無料"
+                }
+              ]
+            },
+            {
+              "question": "アルコールの提供はありますか？",
+              "key": "alcohol_service_mixed",
+              "options": [
+                "アルコールは提供しない",
+                "ビール・ワインなど一般的なお酒を提供",
+                "深夜0時以降もお酒を提供する"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "FOOD-001",
+                      "name": "飲食店営業許可申請",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                      "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "16,000円〜20,000円"
+                    }
+                  ]
+                },
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "FOOD-001",
+                      "name": "飲食店営業許可申請",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                      "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                      "deadline": "営業開始前",
+                      "fee": "16,000円〜20,000円"
+                    },
+                    {
+                      "procedure_id": "LIQUOR-001",
+                      "name": "酒類販売業免許申請",
+                      "jurisdiction": "税務署",
+                      "url": "https://www.nta.go.jp/",
+                      "requirements": "免許申請書、店舗図面、資金計画書",
+                      "deadline": "営業開始2ヶ月前",
+                      "fee": "30,000円"
+                    }
+                  ]
+                },
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "NIGHT-001",
+                      "name": "深夜酒類提供飲食店営業届出",
+                      "jurisdiction": "警察署",
+                      "url": "https://www.keishicho.metro.tokyo.jp/",
+                      "requirements": "営業届出書、店舗図面、誓約書",
+                      "deadline": "営業開始10日前まで",
+                      "fee": "無料"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "FOOD-001",
+                  "name": "飲食店営業許可申請",
+                  "jurisdiction": "保健所",
+                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+                  "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+                  "deadline": "営業開始前",
+                  "fee": "16,000円〜20,000円"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-004",
+              "name": "飲食店営業許可申請（テイクアウト専門）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "どこで営業しますか？",
+      "key": "mobile_location",
+      "options": [
+        "決まった場所で営業（公園、駐車場など）",
+        "複数の場所を移動して営業",
+        "イベント会場のみで営業"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、車両の設備図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "ROAD-001",
+              "name": "道路使用許可申請",
+              "jurisdiction": "警察署",
+              "url": "https://www.keishicho.metro.tokyo.jp/tetsuzuki/douro/",
+              "requirements": "申請書、営業場所の図面、車両写真",
+              "deadline": "使用日の7日前まで",
+              "fee": "2,700円（東京都の場合）"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、車両の設備図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "ROAD-001",
+              "name": "道路使用許可申請（複数箇所）",
+              "jurisdiction": "各地域の警察署",
+              "url": "https://www.keishicho.metro.tokyo.jp/tetsuzuki/douro/",
+              "requirements": "各場所ごとの申請書、営業場所の図面、車両写真",
+              "deadline": "使用日の7日前まで",
+              "fee": "2,700円×箇所数（東京都の場合）"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、車両の設備図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "EVENT-001",
+              "name": "臨時営業許可・届出",
+              "jurisdiction": "保健所・イベント主催者",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "臨時営業届、イベント参加証明書",
+              "deadline": "イベント開催7日前まで",
+              "fee": "無料〜5,000円"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "デリバリーの配送方法は？",
+      "key": "delivery_method",
+      "options": [
+        "自社配送（自前のスタッフ・車両）",
+        "配送代行サービスを利用",
+        "両方を併用"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-008",
+              "name": "飲食店営業許可（デリバリー専門）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、調理施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "TRANSPORT-001",
+              "name": "貨物軽自動車運送事業届出",
+              "jurisdiction": "運輸局",
+              "url": "https://www.mlit.go.jp/",
+              "requirements": "事業計画書、車両の車検証",
+              "deadline": "事業開始前",
+              "fee": "無料"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-008",
+              "name": "飲食店営業許可（デリバリー専門）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、調理施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-008",
+              "name": "飲食店営業許可（デリバリー専門）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、調理施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "TRANSPORT-001",
+              "name": "貨物軽自動車運送事業届出",
+              "jurisdiction": "運輸局",
+              "url": "https://www.mlit.go.jp/",
+              "requirements": "事業計画書、車両の車検証",
+              "deadline": "事業開始前",
+              "fee": "無料"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "イベントの種類は？",
+      "key": "event_type",
+      "options": [
+        "屋外イベント（祭り、マルシェなど）",
+        "屋内イベント（展示会、即売会など）",
+        "両方に出店"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "EVENT-002",
+              "name": "臨時営業許可（屋外）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "臨時営業届、イベント概要、設備配置図",
+              "deadline": "イベント開催7日前まで",
+              "fee": "3,000円〜5,000円"
+            },
+            {
+              "procedure_id": "FIRE-003",
+              "name": "火気使用届出",
+              "jurisdiction": "消防署",
+              "url": "https://www.fdma.go.jp/",
+              "requirements": "火気使用届、安全対策書",
+              "deadline": "使用3日前まで",
+              "fee": "無料"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "EVENT-003",
+              "name": "臨時営業許可（屋内）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "臨時営業届、会場レイアウト図",
+              "deadline": "イベント開催7日前まで",
+              "fee": "3,000円〜5,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "EVENT-002",
+              "name": "臨時営業許可（屋外）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "臨時営業届、イベント概要、設備配置図",
+              "deadline": "イベント開催7日前まで",
+              "fee": "3,000円〜5,000円"
+            },
+            {
+              "procedure_id": "EVENT-003",
+              "name": "臨時営業許可（屋内）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "臨時営業届、会場レイアウト図",
+              "deadline": "イベント開催7日前まで",
+              "fee": "3,000円〜5,000円"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "メインとなる営業形態は？",
+      "key": "main_business_type",
+      "options": [
+        "店舗営業がメイン",
+        "移動販売がメイン",
+        "デリバリーがメイン",
+        "すべて同程度の比重"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可（追加）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "既存店舗の許可証写し、車両設備図面",
+              "deadline": "営業開始前",
+              "fee": "10,000円〜15,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、車両の設備図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請（追加）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "既存許可証写し、店舗図面",
+              "deadline": "営業開始前",
+              "fee": "10,000円〜15,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-008",
+              "name": "飲食店営業許可（デリバリー専門）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、調理施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "MULTI-001",
+              "name": "複数業態追加許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "追加業態の申請書一式",
+              "deadline": "追加業態開始前",
+              "fee": "各10,000円〜15,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "FOOD-001",
+              "name": "飲食店営業許可申請",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者の資格証明書",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "FOOD-007",
+              "name": "移動販売車営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "営業許可申請書、車両の設備図面",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            },
+            {
+              "procedure_id": "FOOD-008",
+              "name": "飲食店営業許可（デリバリー）",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/",
+              "requirements": "デリバリー用設備の追加申請",
+              "deadline": "営業開始前",
+              "fee": "10,000円〜15,000円"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

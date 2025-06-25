@@ -1,0 +1,117 @@
+{
+  "question": "どのような立場で建設業に関わりますか？",
+  "key": "construction_position",
+  "options": [
+    "元請業者として工事を受注したい",
+    "下請業者として工事に参加したい",
+    "一人親方として独立したい",
+    "建設業許可は不要な小規模工事のみ",
+    "まだ決めていない・相談したい"
+  ],
+  "children": [
+    {
+      "question": "どのような工事を行いますか？",
+      "key": "construction_type",
+      "options": [
+        "建物の新築・増築・改修工事",
+        "建物の解体工事（延床面積80㎡以上）",
+        "道路・橋・トンネルなどの土木工事",
+        "電気・水道・ガスなどの設備工事",
+        "複数の種類の工事を総合的に行う"
+      ],
+      "children": [
+        {
+          "question": "1件あたりの工事の請負金額はどれくらいですか？",
+          "key": "construction_amount",
+          "options": [
+            "500万円未満の工事のみ",
+            "500万円以上1,500万円未満",
+            "1,500万円以上の工事を含む",
+            "公共工事も受注したい",
+            "まだ決まっていない"
+          ],
+          "children": [
+            {
+              "question": "工事を行う地域はどこですか？",
+              "key": "construction_area",
+              "options": [
+                "1つの都道府県内のみ",
+                "複数の都道府県にまたがる"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "CONST-001",
+                      "name": "建設業許可申請（知事許可）",
+                      "jurisdiction": "都道府県知事",
+                      "url": "https://www.mlit.go.jp/totikensangyo/const/",
+                      "requirements": "経営業務の管理責任者、専任技術者、財産的基礎（500万円以上）",
+                      "deadline": "工事請負契約前",
+                      "fee": "9万円"
+                    },
+                    {
+                      "procedure_id": "BUILDING-002",
+                      "name": "建築確認申請",
+                      "jurisdiction": "建築主事または指定確認検査機関",
+                      "url": "https://www.mlit.go.jp/jutakukentiku/house/",
+                      "requirements": "建築確認申請書、設計図書一式",
+                      "deadline": "着工前",
+                      "fee": "規模により異なる（数万円〜）"
+                    }
+                  ]
+                },
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "CONST-002",
+                      "name": "建設業許可申請（大臣許可）",
+                      "jurisdiction": "国土交通大臣",
+                      "url": "https://www.mlit.go.jp/totikensangyo/const/",
+                      "requirements": "経営業務の管理責任者、専任技術者、財産的基礎（500万円以上）",
+                      "deadline": "工事請負契約前",
+                      "fee": "15万円"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "解体する建物にアスベストは含まれていますか？",
+      "key": "asbestos_check",
+      "options": [
+        "含まれている（または可能性がある）",
+        "含まれていない（調査済み）",
+        "まだ調査していない"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "DEMOLITION-001",
+              "name": "建設リサイクル法届出",
+              "jurisdiction": "都道府県知事",
+              "url": "https://www.mlit.go.jp/sogoseisaku/region/recycle/",
+              "requirements": "解体工事届出書、分別解体等の計画書",
+              "deadline": "着工7日前まで",
+              "fee": "無料"
+            },
+            {
+              "procedure_id": "ASBESTOS-001",
+              "name": "特定粉じん排出等作業実施届出",
+              "jurisdiction": "都道府県知事",
+              "url": "https://www.env.go.jp/air/asbestos/",
+              "requirements": "作業実施届出書、作業計画書",
+              "deadline": "作業開始14日前まで",
+              "fee": "無料"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-open-sans), var(--font-noto-sans-jp), "Open Sans", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+  }
+}
+
+/* 芋づるマスコットのカスタムアニメーション */
+@keyframes imoduru-cute-jump {
+  0% { 
+    transform: translateY(0px);
+  }
+  10% { 
+    transform: translateY(-2px);
+  }
+  20% { 
+    transform: translateY(0px);
+  }
+  35% { 
+    transform: translateY(-4px);
+  }
+  45% { 
+    transform: translateY(0px);
+  }
+  55% { 
+    transform: translateY(-1px);
+  }
+  65% { 
+    transform: translateY(0px);
+  }
+  80% { 
+    transform: translateY(-3px);
+  }
+  90% { 
+    transform: translateY(0px);
+  }
+  100% { 
+    transform: translateY(0px);
+  }
+}
+
+.animate-imoduru-search {
+  animation: imoduru-cute-jump 1.8s ease-in-out infinite;
+}
+
+/* 検索ボックスのカスタムスタイル */
+.search-textarea {
+  font-size: 17px !important;
+  line-height: 1.5 !important;
+  border: 2px solid hsl(0 0% 75%) !important;
+  transition: border-color 0.2s ease-in-out !important;
+}
+
+.search-textarea:focus {
+  border-color: hsl(0 0% 50%) !important;
+  box-shadow: 0 0 0 2px hsl(0 0% 50% / 0.1) !important;
+}
+
+.search-textarea::placeholder {
+  font-size: 17px !important;
+  opacity: 0.6;
+}

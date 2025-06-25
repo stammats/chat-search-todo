@@ -1,0 +1,81 @@
+{
+  "question": "どのような事業を始めたいですか？",
+  "key": "business_type",
+  "options": [
+    "物を販売する事業（小売・卸売）",
+    "サービスを提供する事業",
+    "製造・加工を行う事業",
+    "専門的な技術・資格を活かす事業",
+    "その他の事業"
+  ],
+  "children": [
+    {
+      "question": "事業を行う形態は？",
+      "key": "business_format",
+      "options": [
+        "実店舗で営業",
+        "オンラインのみで営業",
+        "実店舗とオンライン両方",
+        "訪問・出張型サービス",
+        "その他の形態"
+      ],
+      "children": [
+        {
+          "question": "事業の規模は？",
+          "key": "business_scale",
+          "options": [
+            "個人または家族経営（従業員なし）",
+            "小規模（従業員1〜5名）",
+            "中規模（従業員6〜20名）",
+            "大規模（従業員21名以上）"
+          ],
+          "children": [
+            {
+              "question": "必要な許認可の種類は？",
+              "key": "license_type",
+              "options": [
+                "営業許可・届出が必要",
+                "専門資格・免許が必要",
+                "特別な認可・登録が必要",
+                "許認可は不要"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "GENERAL-001",
+                      "name": "事業開始に関する一般的な手続き",
+                      "jurisdiction": "管轄行政機関",
+                      "url": "https://www.e-gov.go.jp/",
+                      "requirements": "事業内容により異なります",
+                      "deadline": "事業開始前",
+                      "fee": "手続きにより異なります"
+                    },
+                    {
+                      "procedure_id": "TAX-001",
+                      "name": "税務署への開業届出",
+                      "jurisdiction": "税務署",
+                      "url": "https://www.nta.go.jp/",
+                      "requirements": "個人事業の開業届出書",
+                      "deadline": "開業から1ヶ月以内",
+                      "fee": "無料"
+                    },
+                    {
+                      "procedure_id": "INSURANCE-001",
+                      "name": "社会保険・労働保険の手続き",
+                      "jurisdiction": "年金事務所・労働基準監督署",
+                      "url": "https://www.nenkin.go.jp/",
+                      "requirements": "事業規模により異なります",
+                      "deadline": "雇用開始時",
+                      "fee": "保険料は別途必要"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
