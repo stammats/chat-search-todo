@@ -1,53 +1,118 @@
 {
-  "question": "お酒に関してどのような事業を行いますか？",
-  "key": "alcohol_business_type",
+  "question": "酒造事業に関してどのような手続きをお探しですか？",
+  "key": "alcohol_procedure_type",
   "options": [
-    "お酒を作る（日本酒、ビール、ワインなど）",
-    "お酒を仕入れて販売する（酒屋、コンビニなど）",
-    "飲食店でお酒を提供する",
-    "インターネットでお酒を販売する",
-    "お酒の輸入・輸出を行う"
+    "事業承継・相続に関する手続き",
+    "新規でお酒を製造する事業を始める",
+    "お酒を仕入れて販売する事業を始める"
   ],
   "children": [
     {
-      "question": "どのようなお酒を製造しますか？",
-      "key": "alcohol_type",
+      "question": "どのような形での事業承継ですか？",
+      "key": "succession_type",
       "options": [
-        "清酒（日本酒）",
-        "ビール・発泡酒",
-        "果実酒（ワイン等）",
-        "ウイスキー・ブランデー",
-        "リキュール・その他の醸造酒"
+        "家族・親族への承継（相続・贈与）",
+        "第三者への事業譲渡・M&A"
       ],
       "children": [
         {
-          "question": "製造規模と販売方法は？",
-          "key": "production_scale_method",
+          "question": "現在の酒類免許の種類は？",
+          "key": "current_license_type",
           "options": [
-            "自家消費程度の少量製造（どぶろく特区など）",
-            "小規模製造（地ビール・クラフトビール等）",
-            "中規模製造（地域流通メイン）",
-            "大規模製造（全国流通）"
+            "酒類製造免許（清酒・焼酎・ワインなど）",
+            "酒類販売業免許（小売・卸売）"
           ],
           "children": [
             {
               "procedureList": [
                 {
-                  "procedure_id": "ALCOHOL-003",
-                  "name": "どぶろく製造免許（構造改革特区）",
+                  "procedure_id": "ALCOHOL-SUCC-001",
+                  "name": "酒類製造免許名義変更許可申請",
                   "jurisdiction": "税務署",
-                  "url": "https://www.nta.go.jp/taxes/sake/qa/03/01.htm",
-                  "requirements": "特区申請書、製造場所の図面等",
-                  "deadline": "事業開始前",
-                  "fee": "登録免許税：3万円"
+                  "url": "https://www.nta.go.jp/taxes/sake/qa/03/05.htm",
+                  "requirements": "名義変更許可申請書、相続関係説明図、戸籍謄本、事業計画書",
+                  "deadline": "相続開始から6ヶ月以内",
+                  "fee": "登録免許税：9万円"
+                },
+                {
+                  "procedure_id": "BUSINESS-SUCC-001", 
+                  "name": "事業承継計画の認定申請",
+                  "jurisdiction": "都道府県庁（経営承継円滑化法）",
+                  "url": "https://www.chusho.meti.go.jp/zaimu/shoukei/",
+                  "requirements": "事業承継計画書、会社定款、財務諸表等",
+                  "deadline": "贈与・相続の前",
+                  "fee": "無料"
+                },
+                {
+                  "procedure_id": "TAX-SUCC-001",
+                  "name": "贈与税・相続税の特例適用申請",
+                  "jurisdiction": "税務署",
+                  "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/zoyo/4139.htm",
+                  "requirements": "特例承継計画、株式等の評価書類",
+                  "deadline": "贈与・相続から8ヶ月以内",
+                  "fee": "無料"
                 }
               ]
             },
             {
               "procedureList": [
                 {
-                  "procedure_id": "ALCOHOL-001",
-                  "name": "酒類製造免許申請",
+                  "procedure_id": "ALCOHOL-SUCC-002",
+                  "name": "酒類販売業免許相続申告",
+                  "jurisdiction": "税務署", 
+                  "url": "https://www.nta.go.jp/taxes/sake/qa/02/05.htm",
+                  "requirements": "相続申告書、戸籍謄本、相続関係説明図",
+                  "deadline": "相続開始から2ヶ月以内",
+                  "fee": "無料"
+                },
+                {
+                  "procedure_id": "BUSINESS-SUCC-002",
+                  "name": "個人事業の開業・廃業等届出書",
+                  "jurisdiction": "税務署",
+                  "url": "https://www.nta.go.jp/taxes/tetsuzuki/shinsei/annai/shinkoku/annai/04.htm",
+                  "requirements": "開業・廃業等届出書",
+                  "deadline": "事業開始から1ヶ月以内",
+                  "fee": "無料"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "譲渡先の形態は？",
+          "key": "transfer_target_type", 
+          "options": [
+            "既存の酒造メーカーへの譲渡",
+            "新規参入者への譲渡"
+          ],
+          "children": [
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "ALCOHOL-TRANS-001",
+                  "name": "酒類製造免許譲渡許可申請",
+                  "jurisdiction": "税務署",
+                  "url": "https://www.nta.go.jp/taxes/sake/qa/03/06.htm",
+                  "requirements": "譲渡許可申請書、譲渡契約書、事業計画書",
+                  "deadline": "譲渡前",
+                  "fee": "登録免許税：15万円"
+                },
+                {
+                  "procedure_id": "CORP-MERGER-001",
+                  "name": "会社分割・合併登記",
+                  "jurisdiction": "法務局",
+                  "url": "https://www.moj.go.jp/MINJI/minji06_00024.html",
+                  "requirements": "分割計画書、株主総会議事録等",
+                  "deadline": "効力発生から2週間以内",
+                  "fee": "登録免許税：6万円〜"
+                }
+              ]
+            },
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "ALCOHOL-NEW-001",
+                  "name": "酒類製造免許申請（新規）",
                   "jurisdiction": "税務署",
                   "url": "https://www.nta.go.jp/taxes/sake/qa/03/01.htm",
                   "requirements": "申請書、事業計画書、製造設備の図面等",
@@ -55,15 +120,74 @@
                   "fee": "登録免許税：15万円"
                 },
                 {
-                  "procedure_id": "FOOD-003",
-                  "name": "食品製造業営業許可",
-                  "jurisdiction": "保健所",
-                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
-                  "requirements": "営業許可申請書、施設の図面、食品衛生責任者",
-                  "deadline": "営業開始前",
-                  "fee": "16,000円〜20,000円"
+                  "procedure_id": "ASSET-TRANSFER-001",
+                  "name": "事業用資産の譲渡に関する届出",
+                  "jurisdiction": "税務署",
+                  "url": "https://www.nta.go.jp/taxes/shiraberu/taxanswer/joto/3152.htm", 
+                  "requirements": "譲渡所得の申告書、資産譲渡契約書",
+                  "deadline": "譲渡の翌年3月15日まで",
+                  "fee": "無料"
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "どのようなお酒を製造しますか？",
+      "key": "alcohol_type",
+      "options": [
+        "清酒（日本酒）",
+        "ビール・発泡酒",
+        "果実酒（ワイン等）"
+      ],
+      "children": [
+        {
+          "procedureList": [
+            {
+              "procedure_id": "ALCOHOL-001",
+              "name": "酒類製造免許申請",
+              "jurisdiction": "税務署",
+              "url": "https://www.nta.go.jp/taxes/sake/qa/03/01.htm",
+              "requirements": "申請書、事業計画書、製造設備の図面等",
+              "deadline": "事業開始前",
+              "fee": "登録免許税：15万円"
+            },
+            {
+              "procedure_id": "FOOD-003",
+              "name": "食品製造業営業許可",
+              "jurisdiction": "保健所",
+              "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/",
+              "requirements": "営業許可申請書、施設の図面、食品衛生責任者",
+              "deadline": "営業開始前",
+              "fee": "16,000円〜20,000円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "ALCOHOL-001",
+              "name": "酒類製造免許申請",
+              "jurisdiction": "税務署",
+              "url": "https://www.nta.go.jp/taxes/sake/qa/03/01.htm",
+              "requirements": "申請書、事業計画書、製造設備の図面等", 
+              "deadline": "事業開始前",
+              "fee": "登録免許税：15万円"
+            }
+          ]
+        },
+        {
+          "procedureList": [
+            {
+              "procedure_id": "ALCOHOL-001",
+              "name": "酒類製造免許申請",
+              "jurisdiction": "税務署",
+              "url": "https://www.nta.go.jp/taxes/sake/qa/03/01.htm",
+              "requirements": "申請書、事業計画書、製造設備の図面等",
+              "deadline": "事業開始前", 
+              "fee": "登録免許税：15万円"
             }
           ]
         }
@@ -74,8 +198,7 @@
       "key": "sales_location",
       "options": [
         "実店舗での販売",
-        "インターネットのみでの販売",
-        "両方で販売"
+        "インターネットのみでの販売"
       ],
       "children": [
         {
@@ -93,28 +216,6 @@
         },
         {
           "procedureList": [
-            {
-              "procedure_id": "ALCOHOL-004",
-              "name": "通信販売酒類小売業免許申請",
-              "jurisdiction": "税務署",
-              "url": "https://www.nta.go.jp/taxes/sake/qa/02/01.htm",
-              "requirements": "申請書、販売計画書、ウェブサイト概要",
-              "deadline": "営業開始前",
-              "fee": "登録免許税：3万円"
-            }
-          ]
-        },
-        {
-          "procedureList": [
-            {
-              "procedure_id": "ALCOHOL-002",
-              "name": "酒類小売業免許申請",
-              "jurisdiction": "税務署",
-              "url": "https://www.nta.go.jp/taxes/sake/qa/02/01.htm",
-              "requirements": "申請書、店舗の賃貸借契約書等",
-              "deadline": "営業開始前",
-              "fee": "登録免許税：3万円"
-            },
             {
               "procedure_id": "ALCOHOL-004",
               "name": "通信販売酒類小売業免許申請",
