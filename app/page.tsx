@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import SearchForm from '@/components/SearchForm'
 import SourcesDisplay from '@/components/SourcesDisplay'
+import FlowSkeleton from '@/components/FlowSkeleton'
 import { DecisionTree, Procedure, ProcedureList } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -43,6 +44,20 @@ export default function Home() {
   const [finalState, setFinalState] = useState<FinalState | null>(null)
   // const [viewMode, setViewMode] = useState<ViewMode>('question')
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
+  const [showSkeleton, setShowSkeleton] = useState(false)
+  const [isSearchFormCollapsed, setIsSearchFormCollapsed] = useState(false)
+
+  // 検索をリセットして元の状態に戻す関数
+  const resetToInitialState = () => {
+    setIsLoading(false)
+    setSearchStatus('')
+    setError(null)
+    setQuestionState(null)
+    setFinalState(null)
+    setAnswers({})
+    setShowSkeleton(false)
+    setIsSearchFormCollapsed(false)
+  }
 
   // 決定木から全手続きを収集する関数
   const collectAllProcedures = (tree: DecisionTree | ProcedureList): Procedure[] => {
@@ -187,6 +202,10 @@ export default function Home() {
     setFinalState(null)
     setAnswers({})
     
+    // 検索フォームをcollapseし、スケルトンローダーを表示
+    setIsSearchFormCollapsed(true)
+    setTimeout(() => setShowSkeleton(true), 300) // アニメーション後にスケルトンを表示
+    
     try {
       // ポーリングでステータスを更新
       const statusMessages = [
@@ -240,9 +259,12 @@ export default function Home() {
     } catch (err) {
       console.error('Search failed:', err)
       setError('検索中にエラーが発生しました。')
+      // エラー時はフォームを元に戻す
+      setIsSearchFormCollapsed(false)
     } finally {
       setIsLoading(false)
       setSearchStatus('')
+      setShowSkeleton(false)
     }
   }
 
@@ -559,11 +581,47 @@ export default function Home() {
           onSearch={handleSearch} 
           isLoading={isLoading} 
           searchStatus={searchStatus}
+          isCollapsed={isSearchFormCollapsed}
         />
+        
+        {/* スケルトンローダー */}
+        {showSkeleton && !questionState && !finalState && (
+          <div className="mt-8">
+            <FlowSkeleton />
+            {/* キャンセルボタン */}
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outline"
+                onClick={resetToInitialState}
+                className="flex items-center space-x-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>キャンセル</span>
+              </Button>
+            </div>
+          </div>
+        )}
         
         {error && (
           <Alert variant="destructive" className="mt-8">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>
+              {error}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-2"
+                onClick={() => {
+                  setError(null)
+                  setIsSearchFormCollapsed(false)
+                  setShowSkeleton(false)
+                }}
+              >
+                再試行
+              </Button>
+            </AlertDescription>
           </Alert>
         )}
         
@@ -647,6 +705,21 @@ export default function Home() {
                         </svg>
                       </Button>
                     </div>
+                    
+                    {/* 検索をやり直すボタン */}
+                    <div className="flex justify-center pt-4 border-t">
+                      <Button
+                        variant="ghost"
+                        onClick={resetToInitialState}
+                        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="1,4 1,10 7,10"></polyline>
+                          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>検索をやり直す</span>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -658,6 +731,20 @@ export default function Home() {
                     <CardDescription>
                       検索結果：全{finalState.allProcedures.length}件中、必要な手続き{finalState.procedures.length}件、関連手続き{finalState.relatedProcedures.length}件
                     </CardDescription>
+                    {/* 検索をやり直すボタン */}
+                    <div className="flex justify-center pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={resetToInitialState}
+                        className="flex items-center space-x-2"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="1,4 1,10 7,10"></polyline>
+                          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>検索をやり直す</span>
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {finalState.procedures.map((procedure, index) => (
