@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import SearchForm from '@/components/SearchForm'
+import SourcesDisplay from '@/components/SourcesDisplay'
 import { DecisionTree, Procedure, ProcedureList } from '@/lib/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -600,87 +601,28 @@ export default function Home() {
                
                {/* Brave Search ソース情報を常に表示 */}
               {finalState && (
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle>🔍 Brave Search ソース情報</CardTitle>
-                    <CardDescription>
-                      {(finalState.sources && finalState.sources.length > 0) ? 
-                        `この一問一答と手続き情報の作成に使用したBrave Searchの検索結果です (${finalState.sources.length}件)` :
-                        '検索ソース情報が取得できませんでした'
-                      }
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {(finalState.sources && finalState.sources.length > 0) ? (
-                      <div className="space-y-4">
-                        {finalState.sources.map((source, index) => (
-                          <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
-                            <h4 className="font-medium text-base mb-2">
-                              <a 
-                                href={source.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="text-blue-600 hover:text-blue-800 hover:underline"
-                              >
-                                {source.title}
-                              </a>
-                            </h4>
-                            <p className="text-sm text-green-600 mb-2 font-mono">{source.url}</p>
-                            <p className="text-sm text-gray-700 leading-relaxed">{source.snippet}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <p className="text-sm text-gray-500">
-                          この検索では外部ソース情報が利用できませんが、手続き情報は内部データベースから生成されています。
-                        </p>
-                        {process.env.NODE_ENV === 'development' && (
-                          <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                            <p className="text-xs text-yellow-800">
-                              <strong>開発者向け情報:</strong> sources配列: {JSON.stringify(finalState.sources)}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <SourcesDisplay
+                  sources={finalState.sources || []}
+                  title="🔍 Brave Search ソース情報"
+                  description={
+                    (finalState.sources && finalState.sources.length > 0) ? 
+                      'この一問一答と手続き情報の作成に使用したBrave Searchの検索結果です' :
+                      '検索ソース情報が取得できませんでした'
+                  }
+                  className="mt-6"
+                />
               )}
               
               {/* 質問画面でもソース情報を表示 */}
               {questionState && !finalState && questionState.sources && questionState.sources.length > 0 && (
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle>🔍 検索に使用した情報源 ({questionState.sources.length}件)</CardTitle>
-                    <CardDescription>
-                      この一問一答の作成に使用したBrave Searchの検索結果です
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {questionState.sources.slice(0, 3).map((source, index) => (
-                      <div key={index} className="border-b border-gray-100 pb-3 last:border-b-0">
-                        <h4 className="font-medium text-sm mb-1">
-                          <a 
-                            href={source.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-blue-600 hover:underline"
-                          >
-                            {source.title}
-                          </a>
-                        </h4>
-                        <p className="text-xs text-gray-600 mb-1">{source.url}</p>
-                        <p className="text-xs text-gray-500 line-clamp-2">{source.snippet}</p>
-                      </div>
-                    ))}
-                    {questionState.sources.length > 3 && (
-                      <p className="text-xs text-gray-500 text-center pt-2">
-                        他 {questionState.sources.length - 3} 件のソースあり（最終結果で全て表示されます）
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                <SourcesDisplay
+                  sources={questionState.sources}
+                  title="検索に使用した情報源"
+                  description="手続きガイドの作成に使用したBrave Searchの検索結果です"
+                  maxVisible={3}
+                  compact={true}
+                  className="mt-6"
+                />
               )}
                
                {/* デバッグ情報（開発環境でのみ表示） */}
