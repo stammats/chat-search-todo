@@ -208,7 +208,7 @@ export class GeminiClient {
     }
     
     const model = this.genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite-preview-06-17",
       generationConfig
     })
     
@@ -509,20 +509,28 @@ JSON形式で出力:
   private generateDynamicDecisionTree(query: string, expansion: { industryCategory: string, relatedProcedures: string[], subcategories: string[], expandedKeywords: string[] }): DecisionTree {
     const { industryCategory, relatedProcedures, subcategories } = expansion
     
-    // 業種に基づいた基本的な分岐パターンを生成
+    // より詳細な3階層の問診ツリーを生成
     const businessTypeQuestion = this.generateBusinessTypeQuestion(industryCategory)
-    const procedureOptions = this.generateProcedureOptions(relatedProcedures, subcategories)
+    const detailedQuestions = this.generateDetailedQuestionFlow(industryCategory, relatedProcedures, subcategories)
     
     return {
-      question: `${industryCategory}に関してどのような手続きをお探しですか？`,
-      key: `${industryCategory.toLowerCase().replace(/[・]/g, '_')}_procedure_type`,
+      question: `${industryCategory}での${query}について、どのような形態で事業を行いますか？`,
+      key: `${industryCategory.toLowerCase().replace(/[・]/g, '_')}_business_type`,
       options: businessTypeQuestion.options,
       children: businessTypeQuestion.options.map((option, index) => ({
-        question: procedureOptions[index]?.question || `${option}の詳細な手続きは？`,
-        key: `detail_${index}`,
-        options: procedureOptions[index]?.options || ["一般的な手続き", "特別な許可が必要な手続き"],
-        children: (procedureOptions[index]?.options || ["一般的な手続き", "特別な許可が必要な手続き"]).map((subOption, subIndex) => ({
-          procedureList: this.generateProcedureListForOption(option, subOption, relatedProcedures, subIndex)
+        question: detailedQuestions[index]?.question || `${option}での具体的な事業内容は？`,
+        key: `business_detail_${index}`,
+        options: detailedQuestions[index]?.options || this.generateDefaultDetailOptions(industryCategory),
+        children: (detailedQuestions[index]?.options || this.generateDefaultDetailOptions(industryCategory)).map((detailOption, detailIndex) => ({
+          question: `${detailOption}に関して、どの段階の手続きが必要ですか？`,
+          key: `procedure_stage_${index}_${detailIndex}`,
+          options: ["事業開始前の許可・免許", "事業開始時の届出・申請", "事業運営中の継続手続き", "事業変更・拡大時の手続き"],
+          children: [
+            { procedureList: this.generateProcedureListForStage(option, detailOption, relatedProcedures, "開始前", 0) },
+            { procedureList: this.generateProcedureListForStage(option, detailOption, relatedProcedures, "開始時", 1) },
+            { procedureList: this.generateProcedureListForStage(option, detailOption, relatedProcedures, "運営中", 2) },
+            { procedureList: this.generateProcedureListForStage(option, detailOption, relatedProcedures, "変更時", 3) }
+          ]
         }))
       }))
     }
@@ -533,17 +541,19 @@ JSON形式で出力:
     const commonPatterns = [
       "新規事業を開始する",
       "既存事業を承継・引き継ぐ", 
-      "事業を拡大・変更する"
+      "事業を拡大・変更する",
+      "個人事業主として始める",
+      "法人として開始する"
     ]
     
     // 業種別の特殊パターンを追加
     const industrySpecificPatterns: { [key: string]: string[] } = {
-      "飲食業": ["店舗での営業", "移動販売・キッチンカー", "デリバリー・テイクアウト専門"],
-      "建設業": ["元請業者として", "下請業者として", "個人で小規模工事"],
-      "民泊・宿泊業": ["住宅宿泊事業（年180日以内）", "簡易宿所営業（年中営業）", "旅館業法による営業"],
-      "酒造・酒類": ["お酒を製造する", "お酒を販売する", "輸入・輸出する"],
-      "運送業": ["一般貨物自動車運送", "特定貨物自動車運送", "軽貨物運送"],
-      "介護・福祉": ["訪問介護サービス", "デイサービス・通所", "施設運営"]
+      "飲食業": ["店舗での営業", "移動販売・キッチンカー", "デリバリー・テイクアウト専門", "カフェ・喫茶店", "居酒屋・バー"],
+      "建設業": ["元請業者として", "下請業者として", "個人で小規模工事", "特定建設業", "一般建設業"],
+      "民泊・宿泊業": ["住宅宿泊事業（年180日以内）", "簡易宿所営業（年中営業）", "旅館業法による営業", "特区民泊", "農家民宿"],
+      "酒造・酒類": ["お酒を製造する", "お酒を販売する", "輸入・輸出する", "酒類の卸売", "酒類の小売"],
+      "運送業": ["一般貨物自動車運送", "特定貨物自動車運送", "軽貨物運送", "旅客運送", "特殊車両運送"],
+      "介護・福祉": ["訪問介護サービス", "デイサービス・通所", "施設運営", "居宅介護支援", "福祉用具貸与"]
     }
     
     const specificOptions = industrySpecificPatterns[industryCategory] || []
@@ -551,6 +561,55 @@ JSON形式で出力:
     return {
       options: specificOptions.length > 0 ? specificOptions : commonPatterns
     }
+  }
+
+  private generateDetailedQuestionFlow(industryCategory: string, relatedProcedures: string[], subcategories: string[]): Array<{ question: string, options: string[] }> {
+    const industrySpecificDetails: { [key: string]: Array<{ question: string, options: string[] }> } = {
+      "飲食業": [
+        { question: "どのような飲食店を営業しますか？", options: ["レストラン・食堂", "カフェ・喫茶店", "居酒屋・バー", "テイクアウト専門", "ケータリング"] },
+        { question: "店舗の規模と設備は？", options: ["小規模店舗（30席未満）", "中規模店舗（30-100席）", "大規模店舗（100席以上）", "移動販売車", "キッチンスペースのみ"] },
+        { question: "営業形態の詳細は？", options: ["通常営業のみ", "深夜営業も行う", "アルコール提供あり", "持ち帰り・配達のみ", "イベント出店"] },
+        { question: "食材の取り扱い範囲は？", options: ["一般的な調理のみ", "生ものの取り扱い", "食肉の処理", "乳製品の製造", "特殊な食材"] },
+        { question: "従業員の雇用予定は？", options: ["個人のみ", "家族経営", "パート・アルバイト雇用", "正社員雇用", "多店舗展開予定"] }
+      ],
+      "建設業": [
+        { question: "どのような建設工事を行いますか？", options: ["住宅建築", "商業施設建築", "土木工事", "電気工事", "管工事"] },
+        { question: "元請・下請の形態は？", options: ["元請業者として", "下請専門", "両方対応", "特定の元請との契約", "公共工事も対応"] },
+        { question: "工事の規模は？", options: ["軽微な工事のみ", "500万円未満の工事", "500万円以上の工事", "1億円以上の大規模工事", "特殊工事"] },
+        { question: "技術者・作業員の体制は？", options: ["個人作業", "数名のチーム", "10名以上の体制", "専門技術者在籍", "外部技術者協力"] },
+        { question: "営業エリアは？", options: ["地元中心", "都道府県内", "広域対応", "全国対応", "海外展開予定"] }
+      ],
+      "民泊・宿泊業": [
+        { question: "どのような宿泊施設を運営しますか？", options: ["一軒家貸切", "部屋貸し", "シェアハウス型", "簡易宿所", "旅館・ホテル"] },
+        { question: "営業日数の制限は？", options: ["年180日以内（住宅宿泊）", "年中営業（簡易宿所）", "季節限定営業", "週末のみ", "イベント時のみ"] },
+        { question: "宿泊者の対象は？", options: ["日本人のみ", "外国人観光客中心", "ビジネス客", "長期滞在者", "特定グループ"] },
+        { question: "施設の管理体制は？", options: ["自己管理", "管理業者委託", "一部委託", "完全委託", "共同管理"] },
+        { question: "サービスの範囲は？", options: ["宿泊のみ", "食事提供あり", "体験プログラム", "送迎サービス", "総合サービス"] }
+      ]
+    }
+    
+    const defaultQuestions = [
+      { question: "事業の規模は？", options: ["小規模事業", "中規模事業", "大規模事業", "段階的拡大", "多店舗・多拠点"] },
+      { question: "従業員の雇用は？", options: ["個人事業", "家族経営", "従業員雇用", "多数雇用", "専門職雇用"] },
+      { question: "営業エリアは？", options: ["地域限定", "市内全域", "都道府県内", "広域展開", "全国展開"] },
+      { question: "特別な許可は？", options: ["一般的な許可のみ", "特殊な許可必要", "複数許可必要", "段階的取得", "継続更新必要"] },
+      { question: "事業の継続期間は？", options: ["短期事業", "中期事業", "長期事業", "永続事業", "期間未定"] }
+    ]
+    
+    return industrySpecificDetails[industryCategory] || defaultQuestions
+  }
+
+  private generateDefaultDetailOptions(industryCategory: string): string[] {
+    const defaultOptions: { [key: string]: string[] } = {
+      "飲食業": ["一般飲食店", "喫茶店", "居酒屋", "テイクアウト", "ケータリング"],
+      "建設業": ["住宅工事", "商業施設", "土木工事", "設備工事", "専門工事"],
+      "民泊・宿泊業": ["住宅宿泊", "簡易宿所", "旅館業", "特区民泊", "体験型宿泊"],
+      "酒造・酒類": ["製造業", "卸売業", "小売業", "輸入業", "通信販売"],
+      "運送業": ["貨物運送", "旅客運送", "特殊運送", "宅配業", "引越業"],
+      "介護・福祉": ["訪問介護", "通所介護", "施設介護", "居宅支援", "福祉用具"]
+    }
+    
+    return defaultOptions[industryCategory] || ["一般事業", "特殊事業", "複合事業", "専門事業", "総合事業"]
   }
   
   private generateProcedureOptions(relatedProcedures: string[], subcategories: string[]): Array<{ question: string, options: string[] }> {
@@ -619,6 +678,71 @@ JSON形式で出力:
       deadline: this.getDeadlineForProcedure(procedure),
       fee: this.getFeeForProcedure(procedure)
     }))
+  }
+
+  private generateProcedureListForStage(businessType: string, detailOption: string, relatedProcedures: string[], stage: string, stageIndex: number): Procedure[] {
+    // 事業段階に応じた手続きを生成
+    const stageSpecificProcedures = this.getStageSpecificProcedures(businessType, detailOption, stage)
+    const relevantProcedures = relatedProcedures.slice(stageIndex * 3, (stageIndex + 1) * 3)
+    
+    // 段階固有の手続きと関連手続きを組み合わせ
+    const allProcedures = [...stageSpecificProcedures, ...relevantProcedures]
+    
+    return allProcedures.slice(0, 6).map((procedure, index) => ({
+      procedure_id: `PROC-${Date.now()}-${stageIndex}-${index}`,
+      name: procedure,
+      jurisdiction: this.getJurisdictionForProcedure(procedure),
+      url: "https://www.e-gov.go.jp/",
+      requirements: this.getRequirementsForProcedure(procedure, `${detailOption}（${stage}）`),
+      deadline: this.getStageSpecificDeadline(stage),
+      fee: this.getFeeForProcedure(procedure)
+    }))
+  }
+
+  private getStageSpecificProcedures(businessType: string, detailOption: string, stage: string): string[] {
+    const stageMap: { [key: string]: string[] } = {
+      "開始前": [
+        `${businessType}の営業許可申請`,
+        `${businessType}の事業計画書提出`,
+        `${detailOption}の設備基準確認`,
+        "法人設立登記（法人の場合）",
+        "税務署への開業届出書作成準備"
+      ],
+      "開始時": [
+        `${businessType}の開業届出`,
+        `${detailOption}の営業開始報告`,
+        "税務署への青色申告承認申請",
+        "社会保険・労働保険の加入手続き",
+        "消防署への防火管理者選任届"
+      ],
+      "運営中": [
+        `${businessType}の定期報告書提出`,
+        `${detailOption}の更新手続き`,
+        "税務申告・納税手続き",
+        "労働基準監督署への報告",
+        "業界団体への加入・報告"
+      ],
+      "変更時": [
+        `${businessType}の変更届出`,
+        `${detailOption}の変更許可申請`,
+        "事業内容変更の許可申請",
+        "設備変更の届出",
+        "従業員数変更の報告"
+      ]
+    }
+    
+    return stageMap[stage] || [`${businessType}に関する${stage}の手続き`]
+  }
+
+  private getStageSpecificDeadline(stage: string): string {
+    const deadlineMap: { [key: string]: string } = {
+      "開始前": "事業開始の1-3ヶ月前",
+      "開始時": "事業開始から1ヶ月以内",
+      "運営中": "定期的（年1回または随時）",
+      "変更時": "変更から2週間以内"
+    }
+    
+    return deadlineMap[stage] || "要確認"
   }
   
   private getJurisdictionForProcedure(procedure: string): string {
