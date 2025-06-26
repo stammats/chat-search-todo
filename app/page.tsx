@@ -94,6 +94,41 @@ export default function Home() {
     return uniqueProcedures
   }
 
+  // 決定木の最大深度を計算する関数
+  const calculateMaxDepth = (tree: DecisionTree | ProcedureList): number => {
+    const findMaxDepth = (node: DecisionTree | ProcedureList, currentDepth: number = 0): number => {
+      if (currentDepth > 20) {
+        console.warn('Maximum depth calculation reached, stopping to prevent infinite loops')
+        return currentDepth
+      }
+      
+      if ('procedureList' in node) {
+        return currentDepth
+      }
+      
+      if (!node.children || !Array.isArray(node.children) || node.children.length === 0) {
+        return currentDepth
+      }
+      
+      let maxChildDepth = currentDepth
+      node.children.forEach(child => {
+        if (child) {
+          const childDepth = findMaxDepth(child, currentDepth + 1)
+          maxChildDepth = Math.max(maxChildDepth, childDepth)
+        }
+      })
+      
+      return maxChildDepth
+    }
+    
+    try {
+      return findMaxDepth(tree)
+    } catch (error) {
+      console.error('Error during depth calculation:', error)
+      return 1
+    }
+  }
+
   // 決定木から関連手続きを収集する関数（現在選択されたもの以外）
   const collectRelatedProcedures = (allProcedures: Procedure[], currentProcedures: Procedure[]): Procedure[] => {
     const currentProcedureIds = new Set(currentProcedures.map(p => p.procedure_id))
@@ -212,8 +247,13 @@ export default function Home() {
   }
 
   const handleAnswer = async (option: string) => {
-    console.log('handleAnswer called with option:', option)
-    console.log('Current questionState:', questionState)
+    console.log('=== USER SELECTION LOG ===')
+    console.log('質問:', questionState?.question)
+    console.log('選択肢:', questionState?.options)
+    console.log('ユーザー選択:', option)
+    console.log('質問キー:', questionState?.key)
+    console.log('現在の回答履歴:', answers)
+    console.log('========================')
     
     if (!questionState || !questionState.tree) {
       console.error('No questionState or tree available')
@@ -223,7 +263,10 @@ export default function Home() {
     setIsLoading(true)
     setSearchStatus('回答を処理しています...')
     const newAnswers = { ...answers, [questionState.key]: option }
-    console.log('New answers object:', newAnswers)
+    console.log('=== UPDATED ANSWERS ===')
+    console.log('新しい回答オブジェクト:', newAnswers)
+    console.log('回答数:', Object.keys(newAnswers).length)
+    console.log('=======================')
     setAnswers(newAnswers)
     
     // 既存のツリーを使ってローカルでナビゲーション
@@ -274,14 +317,41 @@ export default function Home() {
           relatedProcedures = generateFallbackRelatedProcedures(selectedProcedureNames)
         }
         
-        // デバッグ情報をコンソールに出力
-        console.log('=== 関連手続きデバッグ情報 ===')
-        console.log('全手続き数:', allProcedures.length)
+        // 詳細デバッグ情報をコンソールに出力
+        console.log('=== 最終結果詳細分析 ===')
         console.log('選択された手続き数:', result.procedures!.length)
+        console.log('選択された手続き:', result.procedures!.map(p => ({ 
+          name: p.name, 
+          id: p.procedure_id, 
+          jurisdiction: p.jurisdiction 
+        })))
+        
+        console.log('全利用可能手続き数:', allProcedures.length)
+        if (allProcedures.length > 0) {
+          console.log('全手続き詳細:', allProcedures.map(p => ({ 
+            name: p.name, 
+            id: p.procedure_id, 
+            jurisdiction: p.jurisdiction 
+          })))
+        }
+        
         console.log('関連手続き数:', relatedProcedures.length)
-        console.log('全手続きリスト:', allProcedures.map(p => p.name))
-        console.log('選択された手続きリスト:', result.procedures!.map(p => p.name))
-        console.log('関連手続きリスト:', relatedProcedures.map(p => p.name))
+        if (relatedProcedures.length > 0) {
+          console.log('関連手続き詳細:', relatedProcedures.map(p => ({ 
+            name: p.name, 
+            id: p.procedure_id, 
+            jurisdiction: p.jurisdiction 
+          })))
+        }
+        
+        console.log('回答履歴:')
+        Object.entries(newAnswers).forEach(([key, value]) => {
+          console.log(`  ${key}: "${value}"`)
+        })
+        
+        console.log('決定木深度:', Object.keys(newAnswers).length)
+        console.log('ソース数:', questionState.sources?.length || 0)
+        console.log('==============================')
         
         console.log('[handleAnswer] Setting finalState with sources:', questionState.sources?.length || 0)
         setFinalState({
@@ -334,8 +404,7 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options,
-        allowMultiple: tree.allowMultiple
+        options: tree.options
       }
     }
     
@@ -348,14 +417,32 @@ export default function Home() {
     
     // オプション数と子ノード数の一致チェック
     if (tree.children && tree.options.length !== tree.children.length) {
-      console.error(`[Depth ${depth}] MISMATCH: Options count (${tree.options.length}) != Children count (${tree.children.length})`)
-      console.error(`[Depth ${depth}] Options:`, tree.options)
-      console.error(`[Depth ${depth}] Children structure:`, tree.children.map((child, idx) => ({
+      console.warn(`[Depth ${depth}] MISMATCH: Options count (${tree.options.length}) != Children count (${tree.children.length})`)
+      console.warn(`[Depth ${depth}] Options:`, tree.options)
+      console.warn(`[Depth ${depth}] Children structure:`, tree.children.map((child, idx) => ({
         index: idx,
-        hasQuestion: 'question' in child,
-        hasProcedureList: 'procedureList' in child,
+        hasQuestion: child && 'question' in child,
+        hasProcedureList: child && 'procedureList' in child,
         isValid: child && ('question' in child || 'procedureList' in child)
       })))
+      
+      // 不整合を自動修正: 有効な子ノードのみにオプションを調整
+      const validChildren = tree.children.filter(child => 
+        child && ('question' in child || 'procedureList' in child)
+      )
+      
+      if (validChildren.length > 0) {
+        console.warn(`[Depth ${depth}] Auto-fixing: Using ${validChildren.length} valid children`)
+        tree.children = validChildren
+        tree.options = tree.options.slice(0, validChildren.length)
+        
+        // answerIndexを再計算
+        const correctedAnswerIndex = tree.options.indexOf(userAnswer)
+        if (correctedAnswerIndex >= 0 && correctedAnswerIndex < tree.children.length) {
+          console.warn(`[Depth ${depth}] Corrected answer index: ${correctedAnswerIndex}`)
+          return navigateTreeLocally(tree.children[correctedAnswerIndex], answers, depth + 1)
+        }
+      }
     }
     
     if (answerIndex === -1) {
@@ -367,8 +454,7 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options,
-        allowMultiple: tree.allowMultiple
+        options: tree.options
       }
     }
     
@@ -378,8 +464,7 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options,
-        allowMultiple: tree.allowMultiple
+        options: tree.options
       }
     }
     
@@ -394,7 +479,7 @@ export default function Home() {
     })
     
     if (!tree.children[answerIndex]) {
-      console.error(`[Depth ${depth}] No child node at index ${answerIndex}!`, {
+      console.warn(`[Depth ${depth}] No child node at index ${answerIndex}!`, {
         childrenLength: tree.children.length,
         answerIndex,
         userAnswer,
@@ -403,11 +488,11 @@ export default function Home() {
       })
       
       // より詳細なエラー情報
-      console.error(`[Depth ${depth}] Decision tree structure validation failed:`)
-      console.error(`  - User selected: "${userAnswer}" (index: ${answerIndex})`)
-      console.error(`  - Available options: [${tree.options.join(', ')}]`)
-      console.error(`  - Children array length: ${tree.children.length}`)
-      console.error(`  - Children details:`, tree.children.map((child, idx) => ({
+      console.warn(`[Depth ${depth}] Decision tree structure validation failed:`)
+      console.warn(`  - User selected: "${userAnswer}" (index: ${answerIndex})`)
+      console.warn(`  - Available options: [${tree.options.join(', ')}]`)
+      console.warn(`  - Children array length: ${tree.children.length}`)
+      console.warn(`  - Children details:`, tree.children.map((child, idx) => ({
         index: idx,
         exists: !!child,
         type: child ? ('procedureList' in child ? 'ProcedureList' : 'DecisionTree') : 'null'
@@ -415,7 +500,18 @@ export default function Home() {
       
       // より安全な復旧処理
       if (tree.children.length > 0) {
-        // 利用可能な最初の子ノードを使用
+        // 利用可能な有効な子ノードを探す
+        const validChildIndex = tree.children.findIndex(child => 
+          child && ('question' in child || 'procedureList' in child)
+        )
+        
+        if (validChildIndex >= 0) {
+          const validChild = tree.children[validChildIndex]
+          console.warn(`[Depth ${depth}] Using valid child at index ${validChildIndex} instead`)
+          return navigateTreeLocally(validChild, answers, depth + 1)
+        }
+        
+        // 最初の子ノードをフォールバックとして使用
         const safeChildIndex = Math.min(answerIndex, tree.children.length - 1)
         const safeChild = tree.children[safeChildIndex]
         if (safeChild && ('question' in safeChild || 'procedureList' in safeChild)) {
@@ -425,13 +521,12 @@ export default function Home() {
       }
       
       // 子ノードが全く使えない場合は現在の質問に戻る
-      console.error(`[Depth ${depth}] No valid child nodes available, returning to current question`)
+      console.warn(`[Depth ${depth}] No valid child nodes available, returning to current question`)
       return {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options,
-        allowMultiple: tree.allowMultiple
+        options: tree.options
       }
     }
     
@@ -477,34 +572,81 @@ export default function Home() {
               {questionState && !finalState && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>{questionState.question}</CardTitle>
+                    {/* プログレスバー */}
+                    <div className="mb-6">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-600">
+                          質問 {questionState.currentPath.length + 1} / {questionState.tree ? calculateMaxDepth(questionState.tree) + 1 : 1}
+                        </span>
+                        <span className="text-sm font-medium text-gray-600">
+                          {Math.round(((questionState.currentPath.length + 1) / (questionState.tree ? calculateMaxDepth(questionState.tree) + 1 : 1)) * 100)}% 完了
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                          style={{ 
+                            width: `${Math.round(((questionState.currentPath.length + 1) / (questionState.tree ? calculateMaxDepth(questionState.tree) + 1 : 1)) * 100)}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    <CardTitle className="text-xl mb-2">{questionState.question}</CardTitle>
                     {questionState.allowMultiple && (
                       <CardDescription>
                         複数選択可能です。該当するものをすべて選択してください。
                       </CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent className="grid gap-3">
-                    {questionState.options.map((option, index) => (
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-3">
+                      {questionState.options.map((option, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          className="justify-start h-auto text-left p-4 hover:bg-blue-50 hover:border-blue-300"
+                          onClick={() => handleAnswer(option)}
+                          disabled={isLoading}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-transparent rounded-full"></div>
+                            </div>
+                            <span>{option}</span>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    {/* ナビゲーションボタン */}
+                    <div className="flex justify-between items-center pt-4">
                       <Button
-                        key={index}
-                        variant={questionState.selectedOptions?.includes(option) ? "default" : "outline"}
-                        className="justify-start h-auto text-left p-4"
-                        onClick={() => handleAnswer(option)}
-                        disabled={isLoading}
+                        variant="outline"
+                        onClick={() => {
+                          // 前の質問に戻る処理（簡易実装）
+                          console.log('前へ戻る機能は未実装です')
+                        }}
+                        disabled={isLoading || questionState.currentPath.length === 0}
+                        className="flex items-center space-x-2"
                       >
-                        {option}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        <span>前へ戻る</span>
                       </Button>
-                    ))}
-                    {questionState.allowMultiple && questionState.selectedOptions && questionState.selectedOptions.length > 0 && (
+                      
                       <Button
-                        className="mt-4"
-                        onClick={handleMultipleNext}
-                        disabled={isLoading}
+                        variant="default"
+                        disabled={true}
+                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
                       >
-                        次へ
+                        <span>次へ進む</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
                       </Button>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -603,10 +745,10 @@ export default function Home() {
               {finalState && (
                 <SourcesDisplay
                   sources={finalState.sources || []}
-                  title="🔍 Brave Search ソース情報"
+                  title="検索した情報"
                   description={
                     (finalState.sources && finalState.sources.length > 0) ? 
-                      'この一問一答と手続き情報の作成に使用したBrave Searchの検索結果です' :
+                      'この手続きと手続き情報の作成に使用した検索結果です' :
                       '検索ソース情報が取得できませんでした'
                   }
                   className="mt-6"
