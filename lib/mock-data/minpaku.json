@@ -1,0 +1,317 @@
+{
+  "question": "どのような形態で民泊事業を運営しますか？",
+  "key": "minpaku_business_type",
+  "options": [
+    "住宅の一部を貸し出し（家主同居型）",
+    "住宅全体を貸し出し（家主不在型）", 
+    "本格的な宿泊施設として運営",
+    "国家戦略特区での運営"
+  ],
+  "children": [
+    {
+      "question": "年間の営業日数はどの程度を予定していますか？",
+      "key": "operating_days",
+      "options": [
+        "年間180日以内（民泊新法の範囲内）",
+        "年間180日を超える営業",
+        "通年営業"
+      ],
+      "children": [
+        {
+          "question": "物件の立地はどちらですか？",
+          "key": "property_location",
+          "options": [
+            "住居専用地域",
+            "商業地域・近隣商業地域",
+            "工業地域・準工業地域"
+          ],
+          "children": [
+            {
+              "question": "外国人宿泊者の受け入れ体制はいかがですか？",
+              "key": "foreign_guest_support",
+              "options": [
+                "多言語対応可能",
+                "日本語のみ対応",
+                "翻訳アプリ等で対応"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "MINPAKU-001",
+                      "name": "住宅宿泊事業届出",
+                      "jurisdiction": "都道府県庁・保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000177906.html",
+                      "requirements": "住宅宿泊事業届出書、住宅の図面、消防法令適合通知書等",
+                      "fee": "無料",
+                      "period": "届出から2ヶ月程度",
+                      "details": "年間180日以内の営業で家主同居型の場合"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-002", 
+                      "name": "消防法令適合通知書取得",
+                      "jurisdiction": "所轄消防署",
+                      "url": "https://www.fdma.go.jp/",
+                      "requirements": "消防設備等点検結果報告書、建物図面、消防設備設置状況",
+                      "fee": "検査手数料（自治体により異なる）",
+                      "period": "1〜2週間",
+                      "details": "火災報知器、消火器、避難経路の確保が必要"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-003",
+                      "name": "建築基準法適合確認",
+                      "jurisdiction": "建築主事・指定確認検査機関",
+                      "url": "https://www.mlit.go.jp/jutakukentiku/build/jutakukentiku_house_tk_000043.html",
+                      "requirements": "建築確認済証、検査済証、用途変更が必要な場合は確認申請",
+                      "fee": "確認申請手数料（規模により異なる）",
+                      "period": "2〜4週間",
+                      "details": "住宅から宿泊施設への用途変更が必要な場合がある"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-004",
+                      "name": "近隣住民説明実施",
+                      "jurisdiction": "自治体（条例による）",
+                      "url": "",
+                      "requirements": "説明会実施記録、近隣住民同意書、苦情対応窓口設置",
+                      "fee": "無料",
+                      "period": "1〜2週間",
+                      "details": "多くの自治体で義務化されている近隣説明手続き"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-005",
+                      "name": "標識設置義務",
+                      "jurisdiction": "届出自治体",
+                      "url": "",
+                      "requirements": "住宅宿泊事業標識、届出番号表示、緊急時連絡先表示",
+                      "fee": "標識作成費用（数千円〜）",
+                      "period": "即日",
+                      "details": "建物入口付近への標識設置が法的義務"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "物件の立地はどちらですか？",
+          "key": "property_location_long",
+          "options": [
+            "住居専用地域（制限あり）",
+            "商業地域・近隣商業地域",
+            "工業地域・準工業地域"
+          ],
+          "children": [
+            {
+              "question": "管理体制はどのように構築しますか？",
+              "key": "management_system",
+              "options": [
+                "住宅宿泊管理業者に委託",
+                "自己管理",
+                "一部委託（清掃のみ等）"
+              ],
+              "children": [
+                {
+                  "procedureList": [
+                    {
+                      "procedure_id": "MINPAKU-011",
+                      "name": "簡易宿所営業許可",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000138259.html",
+                      "requirements": "営業許可申請書、施設の構造設備図面、水質検査書等",
+                      "fee": "許可手数料（15,000円〜30,000円程度）",
+                      "period": "1〜2ヶ月",
+                      "details": "年間180日を超える営業や本格的な宿泊事業の場合"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-012",
+                      "name": "住宅宿泊管理業者委託",
+                      "jurisdiction": "観光庁登録管理業者",
+                      "url": "https://www.mlit.go.jp/kankocho/shisaku/sangyou/minpaku.html",
+                      "requirements": "管理委託契約書、管理業者登録確認、業務内容明記",
+                      "fee": "管理委託費用（売上の10-20%程度）",
+                      "period": "契約締結後即日",
+                      "details": "家主不在型の場合は管理業者委託が必須"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-013",
+                      "name": "旅館業法許可",
+                      "jurisdiction": "保健所",
+                      "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000138259.html",
+                      "requirements": "営業許可申請書、施設構造設備概要書、付近見取図等",
+                      "fee": "許可手数料（20,000円〜40,000円程度）",
+                      "period": "2〜3ヶ月",
+                      "details": "通年営業や本格的なホテル・旅館経営の場合"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-014",
+                      "name": "緊急時対応体制構築",
+                      "jurisdiction": "管理業者・自治体",
+                      "url": "",
+                      "requirements": "24時間連絡体制、多言語対応、医療機関・警察との連携",
+                      "fee": "体制構築費用（月額数万円〜）",
+                      "period": "1〜2週間",
+                      "details": "外国人宿泊者対応のための緊急時サポート体制"
+                    },
+                    {
+                      "procedure_id": "MINPAKU-015",
+                      "name": "本人確認体制構築",
+                      "jurisdiction": "都道府県・警察署",
+                      "url": "",
+                      "requirements": "パスポート確認システム、宿泊者名簿作成・保管、警察署報告体制",
+                      "fee": "システム導入費用（数十万円〜）",
+                      "period": "2〜4週間",
+                      "details": "外国人宿泊者の身元確認と報告義務への対応"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "物件の立地・用途地域を教えてください",
+      "key": "full_operation_location",
+      "options": [
+        "住居専用地域（営業制限あり）",
+        "商業地域・近隣商業地域",
+        "国家戦略特区内"
+      ],
+      "children": [
+        {
+          "question": "建物の現在の用途は何ですか？",
+          "key": "current_building_use",
+          "options": [
+            "住宅として使用中",
+            "事務所・店舗として使用",
+            "空き家・未使用"
+          ],
+          "children": [
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "MINPAKU-021",
+                  "name": "旅館業営業許可",
+                  "jurisdiction": "保健所",
+                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000138259.html",
+                  "requirements": "営業許可申請書、施設概要書、構造設備図面、水質検査書等",
+                  "fee": "許可手数料（30,000円〜50,000円程度）",
+                  "period": "2〜3ヶ月",
+                  "details": "本格的なホテル・旅館として営業する場合"
+                },
+                {
+                  "procedure_id": "MINPAKU-022",
+                  "name": "用途変更確認申請",
+                  "jurisdiction": "建築主事・指定確認検査機関",
+                  "url": "https://www.mlit.go.jp/jutakukentiku/build/jutakukentiku_house_tk_000043.html",
+                  "requirements": "確認申請書、構造計算書、設備図面等",
+                  "fee": "確認申請手数料（数十万円〜）",
+                  "period": "1〜2ヶ月",
+                  "details": "住宅から宿泊施設への用途変更時に必要"
+                },
+                {
+                  "procedure_id": "MINPAKU-023",
+                  "name": "都市計画法適合確認",
+                  "jurisdiction": "市町村建築指導課",
+                  "url": "",
+                  "requirements": "用途地域確認、建ぺい率・容積率確認、高さ制限確認",
+                  "fee": "確認手数料（自治体により異なる）",
+                  "period": "1〜2週間",
+                  "details": "宿泊施設が当該地域で営業可能かの確認"
+                },
+                {
+                  "procedure_id": "MINPAKU-024",
+                  "name": "食品衛生責任者設置",
+                  "jurisdiction": "保健所",
+                  "url": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuchu/index.html",
+                  "requirements": "食品衛生責任者養成講習修了証、設置届",
+                  "fee": "講習受講料（6,000円程度）",
+                  "period": "講習受講後即日",
+                  "details": "朝食提供等の食事サービスを行う場合"
+                },
+                {
+                  "procedure_id": "MINPAKU-025",
+                  "name": "防火管理者選任",
+                  "jurisdiction": "所轄消防署",
+                  "url": "https://www.fdma.go.jp/",
+                  "requirements": "防火管理者選任届、防火管理講習修了証",
+                  "fee": "講習受講料（7,000円程度）",
+                  "period": "選任届提出後即日",
+                  "details": "収容人員30人以上の施設で必要"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "国家戦略特区での運営をお考えですか？",
+      "key": "special_zone_operation",
+      "options": [
+        "東京都大田区での運営",
+        "大阪府での運営",
+        "その他の特区での運営"
+      ],
+      "children": [
+        {
+          "question": "最低宿泊日数の設定はどうしますか？",
+          "key": "minimum_stay",
+          "options": [
+            "2泊3日以上（特区民泊基準）",
+            "6泊7日以上",
+            "より長期滞在"
+          ],
+          "children": [
+            {
+              "procedureList": [
+                {
+                  "procedure_id": "MINPAKU-031",
+                  "name": "特区民泊事業認定",
+                  "jurisdiction": "特区自治体",
+                  "url": "https://www.kantei.go.jp/jp/singi/tiiki/kokusentoc/index.html",
+                  "requirements": "特区民泊事業実施計画書、施設概要書、管理体制計画書",
+                  "fee": "認定手数料（自治体により異なる）",
+                  "period": "2〜3ヶ月",
+                  "details": "国家戦略特区での旅館業法適用除外制度"
+                },
+                {
+                  "procedure_id": "MINPAKU-032",
+                  "name": "外国人滞在施設経営事業認定",
+                  "jurisdiction": "特区自治体",
+                  "url": "",
+                  "requirements": "事業計画書、外国人対応体制書、施設基準適合証明",
+                  "fee": "認定手数料（20,000円〜50,000円程度）",
+                  "period": "1〜2ヶ月",
+                  "details": "外国人観光客の滞在促進を目的とした特区制度"
+                },
+                {
+                  "procedure_id": "MINPAKU-033",
+                  "name": "多言語対応体制構築",
+                  "jurisdiction": "認定事業者",
+                  "url": "",
+                  "requirements": "多言語案内整備、通訳サービス確保、緊急時多言語対応",
+                  "fee": "体制整備費用（数十万円〜）",
+                  "period": "1〜2ヶ月",
+                  "details": "外国人宿泊者への適切なサービス提供体制"
+                },
+                {
+                  "procedure_id": "MINPAKU-034",
+                  "name": "定期報告義務履行",
+                  "jurisdiction": "特区自治体",
+                  "url": "",
+                  "requirements": "営業実績報告書、宿泊者統計、安全管理実施状況報告",
+                  "fee": "無料",
+                  "period": "四半期ごと",
+                  "details": "特区民泊事業の継続的な監督・指導のための報告"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

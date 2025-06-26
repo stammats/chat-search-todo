@@ -130,27 +130,42 @@ export class KeywordExpander {
       queries.push(`${expansion.industryCategory} 開業 手続き`)
     }
     
-    // 手続き特化クエリ（各手続きごとに詳細検索）
-    expansion.relatedProcedures.slice(0, 4).forEach(procedure => {
-      queries.push(`${procedure} 申請 手続き 必要書類`)
-      queries.push(`${procedure} 手数料 期限`)
-    })
-    
-    // 業種 × 要件の組み合わせクエリ
-    if (expansion.subcategories.length > 0) {
-      expansion.subcategories.slice(0, 2).forEach(subcategory => {
-        queries.push(`${expansion.industryCategory} ${subcategory} 許可`)
+    // 民泊特化の詳細検索クエリ
+    if (expansion.industryCategory === '民泊・宿泊業') {
+      queries.push('民泊新法 住宅宿泊事業 届出 年間180日制限')
+      queries.push('簡易宿所 旅館業法 営業許可 消防法令適合')
+      queries.push('特区民泊 国家戦略特区 外国人滞在施設経営事業')
+      queries.push('住宅宿泊管理業者 管理委託 緊急時対応体制')
+      queries.push('建築基準法 用途変更 住居専用地域 都市計画法')
+      queries.push('インバウンド 外国人宿泊者 本人確認 宿泊者名簿')
+      queries.push('民泊 近隣対応 騒音対策 苦情処理 地域協調')
+      queries.push('宿泊税 消費税 所得税 青色申告 事業税')
+      queries.push('Airbnb 住宅宿泊仲介業者 プラットフォーム規制')
+      queries.push('消防設備 火災報知器 避難経路 防火管理者')
+    } else {
+      // 手続き特化クエリ（各手続きごとに詳細検索）
+      expansion.relatedProcedures.slice(0, 4).forEach(procedure => {
+        queries.push(`${procedure} 申請 手続き 必要書類`)
+        queries.push(`${procedure} 手数料 期限`)
       })
+      
+      // 業種 × 要件の組み合わせクエリ
+      if (expansion.subcategories.length > 0) {
+        expansion.subcategories.slice(0, 2).forEach(subcategory => {
+          queries.push(`${expansion.industryCategory} ${subcategory} 許可`)
+        })
+      }
+      
+      // 法令・規制特化クエリ
+      if (expansion.industryCategory) {
+        queries.push(`${expansion.industryCategory} 法律 規制 コンプライアンス`)
+        queries.push(`${expansion.industryCategory} 監督官庁 申請先`)
+      }
     }
     
-    // 法令・規制特化クエリ
-    if (expansion.industryCategory) {
-      queries.push(`${expansion.industryCategory} 法律 規制 コンプライアンス`)
-      queries.push(`${expansion.industryCategory} 監督官庁 申請先`)
-    }
-    
-    // 重複除去して最大8クエリに制限
-    return [...new Set(queries)].slice(0, 8)
+    // 重複除去して最大12クエリに制限（民泊の場合は多めに）
+    const maxQueries = expansion.industryCategory === '民泊・宿泊業' ? 12 : 8
+    return [...new Set(queries)].slice(0, maxQueries)
   }
 
   // 特定業種の全関連手続きを取得（決定木生成用）

@@ -5,6 +5,7 @@ import { KeywordExpander } from './keyword-expander'
 import alcoholMockData from './mock-data/alcohol.json'
 import restaurantMockData from './mock-data/restaurant.json'
 import constructionMockData from './mock-data/construction.json'
+import minpakuMockData from './mock-data/minpaku.json'
 import defaultMockData from './mock-data/default.json'
 
 export class GeminiClient {
@@ -41,10 +42,18 @@ export class GeminiClient {
 入力キーワード: ${query}
 
 【判定基準】
-- 業種名（例：酒造、飲食業、建設業）→ 関連する許可・届出が必要
-- 事業活動（例：開業、起業、営業）→ 行政手続きが必要
+- 業種名（例：酒造、飲食業、建設業、民泊、宿泊業）→ 関連する許可・届出が必要
+- 事業活動（例：開業、起業、営業、インバウンド事業）→ 行政手続きが必要
 - 具体的な手続き名 → そのまま使用
 - 天気、ニュース、一般的な情報 → 行政手続きとは無関係
+
+【特別注意：民泊・宿泊業のキーワード拡張】
+民泊、インバウンド、Airbnb、簡易宿所、短期宿泊などが含まれる場合は、以下の専門用語を含めて拡張：
+- 住宅宿泊事業法（民泊新法）、簡易宿所営業許可、特区民泊
+- 住宅宿泊管理業者、住宅宿泊仲介業者
+- 旅館業法、建築基準法、消防法令、都市計画法
+- 年間180日制限、本人確認義務、近隣説明義務
+- 外国人宿泊者対応、多言語対応、宿泊税
 
 【出力形式】
 必ず以下のJSON形式で出力してください：
@@ -60,6 +69,13 @@ export class GeminiClient {
   "isAdministrative": true,
   "expandedQuery": "酒類製造免許 酒造業 許可申請",
   "relatedProcedures": ["酒類製造免許", "酒類販売業免許", "食品衛生法許可"]
+}
+
+入力: "インバウンド向け民泊事業"
+出力: {
+  "isAdministrative": true,
+  "expandedQuery": "民泊新法 住宅宿泊事業届出 簡易宿所営業許可 インバウンド 外国人宿泊者 旅館業法 建築基準法 消防法令",
+  "relatedProcedures": ["住宅宿泊事業届出", "簡易宿所営業許可", "住宅宿泊管理業者委託", "消防法令適合通知書", "建築基準法適合確認", "外国人宿泊者本人確認", "近隣住民説明", "宿泊税納付"]
 }
 
 入力: "今日の天気"
@@ -96,10 +112,14 @@ export class GeminiClient {
   private isLikelyAdministrative(query: string): boolean {
     const businessKeywords = [
       '酒造', '酒類', '飲食', '建設', '製造', '販売', '小売',
-      '開業', '起業', '営業', '事業', '会社', '法人', '業務'
+      '開業', '起業', '営業', '事業', '会社', '法人', '業務',
+      '民泊', '宿泊', 'Airbnb', 'インバウンド', '簡易宿所', 'ゲストハウス',
+      '短期宿泊', '住宅宿泊', '外国人観光客', '旅館', 'ホテル'
     ]
     const procedureKeywords = [
-      '許可', '申請', '届出', '認可', '登録', '免許', '手続き'
+      '許可', '申請', '届出', '認可', '登録', '免許', '手続き',
+      '住宅宿泊事業', '旅館業法', '民泊新法', '建築基準法',
+      '消防法令', '本人確認', '近隣説明', '管理業者'
     ]
     
     return businessKeywords.some(keyword => query.includes(keyword)) ||
@@ -145,6 +165,8 @@ export class GeminiClient {
   }
 
   private createEnhancedPrompt(searchResults: SearchResult[], query: string, expansion: { industryCategory: string, relatedProcedures: string[], subcategories: string[], expandedKeywords: string[] }): string {
+    const isMinpaku = expansion.industryCategory === '民泊・宿泊業'
+    
     return `あなたは日本の行政手続きの専門家です。
 以下の情報を基に、ユーザーが必要な行政手続きを特定するための詳細な質問ツリーを生成してください。
 
@@ -155,11 +177,37 @@ export class GeminiClient {
 サブカテゴリ: ${expansion.subcategories.join(', ')}
 拡張キーワード: ${expansion.expandedKeywords.join(', ')}
 
+${isMinpaku ? `
+【民泊事業の特別指針】
+民泊事業は複雑な法的要件があるため、以下を必ず考慮してください：
+1. 事業形態の選択（住宅宿泊事業法 vs 簡易宿所 vs 特区民泊）
+2. 立地制限（住居専用地域の制限、自治体条例）
+3. 運営方式（家主居住型 vs 家主不在型）
+4. 安全・衛生基準（消防法令、建築基準法）
+5. 外国人対応（本人確認、多言語対応）
+6. 近隣対応（説明義務、苦情対応）
+7. 税務（宿泊税、所得税、消費税）
+8. 管理体制（管理業者委託、緊急時対応）
+
+必須手続きリスト：
+- 住宅宿泊事業届出
+- 簡易宿所営業許可（年間180日超える場合）
+- 住宅宿泊管理業者委託（家主不在型）
+- 消防法令適合通知書
+- 建築基準法適合確認
+- 近隣住民説明
+- 宿泊者名簿作成体制
+- 本人確認体制構築
+- 苦情対応窓口設置
+- 標識設置義務
+- 定期報告義務` : ''}
+
 【重要な制約】
 1. 特定された業種（${expansion.industryCategory}）に特化した質問を作成
 2. 関連手続き（${expansion.relatedProcedures.join(', ')}）を必ず網羅
 3. 最低4階層の深い質問構造を構築
 4. 各階層で芋蔓式に関連手続きを展開
+${isMinpaku ? '5. 民泊の複雑な法的要件を段階的に確認する質問を構築' : ''}
 
 【関連手続きの必須包含】
 以下の手続きは必ずどこかの分岐に含めてください：
@@ -170,6 +218,7 @@ ${expansion.relatedProcedures.map((proc: string) => `- ${proc}`).join('\n')}
 2. 具体的な分岐を作る（各質問で3〜5の選択肢）
 3. 専門用語を避け、一般の人が理解できる表現を使用
 4. 数値や具体的な状況で表現する
+${isMinpaku ? '5. 民泊特有の複雑な要件を段階的に整理する質問にする' : ''}
 
 検索結果: ${JSON.stringify(searchResults, null, 2)}
 
@@ -331,6 +380,12 @@ ${expansion.relatedProcedures.map((proc: string) => `- ${proc}`).join('\n')}
   }
 
   private getMockDecisionTree(query: string): DecisionTree {
+    // 民泊・宿泊業関連
+    if (query.includes('民泊') || query.includes('インバウンド') || query.includes('Airbnb') || 
+        query.includes('簡易宿所') || query.includes('宿泊') || query.includes('ゲストハウス')) {
+      return minpakuMockData as DecisionTree
+    }
+    
     // 酒造・酒類関連
     if (query.includes('酒造') || query.includes('酒類')) {
       return alcoholMockData as DecisionTree
