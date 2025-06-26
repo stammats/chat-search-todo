@@ -3,6 +3,61 @@ import { BraveSearchClient } from '@/lib/brave-search'
 import { GeminiClient } from '@/lib/gemini-client'
 import { DecisionTree, ProcedureList, Procedure } from '@/lib/types'
 
+// 決定木の構造を検証する関数
+function validateDecisionTree(tree: DecisionTree | ProcedureList): { isValid: boolean; errors: string[] } {
+  const errors: string[] = []
+  
+  function validateNode(node: DecisionTree | ProcedureList, path: string = 'root'): void {
+    if ('procedureList' in node) {
+      // ProcedureListの場合
+      if (!Array.isArray(node.procedureList)) {
+        errors.push(`${path}: procedureList is not an array`)
+      } else if (node.procedureList.length === 0) {
+        errors.push(`${path}: procedureList is empty`)
+      }
+      return
+    }
+    
+    // DecisionTreeの場合
+    if (!node.question || typeof node.question !== 'string') {
+      errors.push(`${path}: question is missing or invalid`)
+    }
+    
+    if (!node.key || typeof node.key !== 'string') {
+      errors.push(`${path}: key is missing or invalid`)
+    }
+    
+    if (!Array.isArray(node.options) || node.options.length === 0) {
+      errors.push(`${path}: options array is missing or empty`)
+    }
+    
+    if (!Array.isArray(node.children)) {
+      errors.push(`${path}: children array is missing`)
+    } else {
+      // オプション数と子ノード数の一致チェック
+      if (node.options && node.options.length !== node.children.length) {
+        errors.push(`${path}: options count (${node.options.length}) != children count (${node.children.length})`)
+      }
+      
+      // 各子ノードを再帰的に検証
+      node.children.forEach((child, index) => {
+        if (!child) {
+          errors.push(`${path}.children[${index}]: child node is null or undefined`)
+        } else {
+          validateNode(child, `${path}.children[${index}]`)
+        }
+      })
+    }
+  }
+  
+  try {
+    validateNode(tree)
+    return { isValid: errors.length === 0, errors }
+  } catch (error) {
+    return { isValid: false, errors: [`Validation error: ${error}`] }
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { query, answers = {} } = await request.json()
@@ -39,6 +94,13 @@ export async function POST(request: NextRequest) {
 
       // 3. Gemini決定木生成
       const tree = await geminiClient.generateDecisionTree(searchResults, query)
+      
+      // 決定木の構造を検証
+      const validationResult = validateDecisionTree(tree)
+      if (!validationResult.isValid) {
+        console.error('Decision tree validation failed:', validationResult.errors)
+        // バリデーションに失敗した場合でも処理を続行（エラー情報はログ出力）
+      }
 
       // 4. 最初の質問を返す
       return NextResponse.json({
@@ -49,7 +111,12 @@ export async function POST(request: NextRequest) {
         currentPath: [],
         tree, // Include the full tree
         expandedKeywords: [query, searchQuery],
-        relatedProcedures: expansion.relatedProcedures
+        relatedProcedures: expansion.relatedProcedures,
+        sources: searchResults.map(result => ({
+          title: result.title,
+          url: result.url,
+          snippet: result.description
+        }))
       })
     }
 
@@ -77,14 +144,24 @@ export async function POST(request: NextRequest) {
         options: result.options,
         currentPath: Object.keys(answers).filter(k => k !== '_originalQuery'),
         tree,
-        expandedKeywords: [originalQuery]
+        expandedKeywords: [originalQuery],
+        sources: searchResults.map(result => ({
+          title: result.title,
+          url: result.url,
+          snippet: result.description
+        }))
       })
     } else {
       return NextResponse.json({
         mode: 'final',
         procedures: result.procedures,
         tree,
-        currentPath: Object.keys(answers).filter(k => k !== '_originalQuery')
+        currentPath: Object.keys(answers).filter(k => k !== '_originalQuery'),
+        sources: searchResults.map(result => ({
+          title: result.title,
+          url: result.url,
+          snippet: result.description
+        }))
       })
     }
 

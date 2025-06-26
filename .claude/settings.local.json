@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "mcp__ide__executeCode",
+      "Bash(python test_playwright.py)",
+      "Bash(python3 test_playwright.py:*)",
+      "Bash(pip3 install:*)"
+    ],
+    "deny": []
+  }
+}

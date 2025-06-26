@@ -14,6 +14,7 @@ export interface DecisionTree {
   key: string
   options: string[]
   children: (DecisionTree | ProcedureList)[]
+  allowMultiple?: boolean
 }
 
 export interface Procedure {

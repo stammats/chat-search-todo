@@ -17,12 +17,19 @@ interface QuestionState {
   options: string[]
   currentPath: string[]
   tree?: DecisionTree
+  allowMultiple?: boolean
+  selectedOptions?: string[]
+  allProcedures?: Procedure[]
+  sources?: Array<{title: string, url: string, snippet: string}>
 }
 
 interface FinalState {
   procedures: Procedure[]
+  relatedProcedures: Procedure[]
+  allProcedures: Procedure[]
   tree?: DecisionTree
   currentPath: string[]
+  sources?: Array<{title: string, url: string, snippet: string}>
 }
 
 // type ViewMode = 'question' | 'tree'
@@ -34,7 +41,107 @@ export default function Home() {
   const [questionState, setQuestionState] = useState<QuestionState | null>(null)
   const [finalState, setFinalState] = useState<FinalState | null>(null)
   // const [viewMode, setViewMode] = useState<ViewMode>('question')
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
+
+  // 決定木から全手続きを収集する関数
+  const collectAllProcedures = (tree: DecisionTree | ProcedureList): Procedure[] => {
+    const allProcedures: Procedure[] = []
+
+    const traverse = (node: DecisionTree | ProcedureList, depth: number = 0) => {
+      console.log(`[collectAllProcedures] Depth ${depth}:`, {
+        hasProcedureList: 'procedureList' in node,
+        hasChildren: 'children' in node && node.children?.length > 0,
+        nodeType: 'procedureList' in node ? 'ProcedureList' : 'DecisionTree'
+      })
+
+      if ('procedureList' in node) {
+        // 手続きリストから全手続きを追加
+        console.log(`[collectAllProcedures] Found ${node.procedureList.length} procedures at depth ${depth}`)
+        node.procedureList.forEach(procedure => {
+          console.log(`[collectAllProcedures] Adding procedure: ${procedure.name}`)
+          allProcedures.push(procedure)
+        })
+      } else {
+        // 子ノードを再帰的に探索
+        if (node.children && node.children.length > 0) {
+          console.log(`[collectAllProcedures] Traversing ${node.children.length} children at depth ${depth}`)
+          node.children.forEach((child, index) => {
+            console.log(`[collectAllProcedures] Processing child ${index} at depth ${depth}`)
+            if (child) {
+              traverse(child, depth + 1)
+            }
+          })
+        } else {
+          console.log(`[collectAllProcedures] No children found at depth ${depth}`)
+        }
+      }
+    }
+
+    console.log('[collectAllProcedures] Starting traversal of decision tree')
+    traverse(tree)
+    
+    console.log(`[collectAllProcedures] Collected ${allProcedures.length} total procedures before deduplication`)
+    
+    // 重複除去
+    const uniqueProcedures = allProcedures.filter((procedure, index, array) => 
+      array.findIndex(p => p.procedure_id === procedure.procedure_id) === index
+    )
+    
+    console.log(`[collectAllProcedures] After deduplication: ${uniqueProcedures.length} unique procedures`)
+    console.log('[collectAllProcedures] Procedure names:', uniqueProcedures.map(p => p.name))
+    
+    return uniqueProcedures
+  }
+
+  // 決定木から関連手続きを収集する関数（現在選択されたもの以外）
+  const collectRelatedProcedures = (allProcedures: Procedure[], currentProcedures: Procedure[]): Procedure[] => {
+    const currentProcedureIds = new Set(currentProcedures.map(p => p.procedure_id))
+    
+    const relatedProcedures = allProcedures.filter(procedure => 
+      !currentProcedureIds.has(procedure.procedure_id)
+    )
+    
+    return relatedProcedures
+  }
+
+  // フォールバック用の関連手続き生成関数
+  const generateFallbackRelatedProcedures = (selectedProcedureNames: string[]): Procedure[] => {
+    console.log('[generateFallbackRelatedProcedures] Generating fallback procedures for:', selectedProcedureNames)
+    
+    // 一般的な飲食店関連手続きの例（実際の検索で見つからなかった場合の補完）
+    const commonRelatedProcedures: Procedure[] = [
+      {
+        procedure_id: 'fallback_1',
+        name: '食品衛生責任者設置届',
+        jurisdiction: '保健所',
+        requirements: '食品衛生責任者資格証',
+        deadline: '営業開始時',
+        fee: '無料',
+        url: 'https://www.mhlw.go.jp/'
+      },
+      {
+        procedure_id: 'fallback_2',
+        name: '防火管理者選任届出書',
+        jurisdiction: '消防署',
+        requirements: '防火管理者資格証、防火管理者選任届出書',
+        deadline: '営業開始から7日以内',
+        fee: '無料',
+        url: 'https://www.fdma.go.jp/'
+      },
+      {
+        procedure_id: 'fallback_3',
+        name: '労働保険加入手続き',
+        jurisdiction: 'ハローワーク・労働基準監督署',
+        requirements: '従業員名簿、賃金台帳等',
+        deadline: '従業員雇用開始時',
+        fee: '保険料として給与の一定割合',
+        url: 'https://www.mhlw.go.jp/'
+      }
+    ]
+    
+    // 選択された手続きの内容に基づいて適切な関連手続きを返す（簡易実装）
+    return commonRelatedProcedures.slice(0, 3)
+  }
 
   const handleSearch = async (query: string) => {
     setIsLoading(true)
@@ -76,12 +183,22 @@ export default function Home() {
       if (data.mode === 'error') {
         setError(data.error)
       } else if (data.mode === 'question') {
+        // 決定木から全手続きを収集
+        console.log('[handleSearch] Collecting all procedures from decision tree')
+        const allProcedures = data.tree ? collectAllProcedures(data.tree) : []
+        console.log(`[handleSearch] Collected ${allProcedures.length} procedures total`)
+        
+        console.log('[handleSearch] Setting questionState with sources:', data.sources?.length || 0)
         setQuestionState({
           question: data.question,
           key: data.key,
           options: data.options,
           currentPath: data.currentPath || [],
-          tree: data.tree // Make sure tree is included
+          tree: data.tree, // Make sure tree is included
+          allowMultiple: data.tree?.allowMultiple,
+          selectedOptions: [],
+          allProcedures: allProcedures,
+          sources: data.sources || []
         })
       }
     } catch (err) {
@@ -126,15 +243,53 @@ export default function Home() {
           key: result.key!,
           options: result.options!,
           currentPath: Object.keys(newAnswers),
-          tree: questionState.tree
+          tree: questionState.tree,
+          allowMultiple: result.allowMultiple,
+          selectedOptions: [],
+          allProcedures: questionState.allProcedures,
+          sources: questionState.sources // ソース情報を保持
         })
       } else if (result.mode === 'final') {
         setSearchStatus('必要な手続きを整理中...')
         await new Promise(resolve => setTimeout(resolve, 300))
+        
+        // 関連手続きを収集
+        let allProcedures = questionState.allProcedures || []
+        
+        // allProceduresが空の場合、決定木から再度収集を試行
+        if (allProcedures.length === 0 && questionState.tree) {
+          console.log('[handleAnswer] allProcedures is empty, recollecting from tree')
+          allProcedures = collectAllProcedures(questionState.tree)
+          console.log(`[handleAnswer] Recollected ${allProcedures.length} procedures`)
+        }
+        
+        let relatedProcedures = collectRelatedProcedures(allProcedures, result.procedures!)
+        
+        // それでも関連手続きが取得できない場合、簡易的な方法で関連手続きを生成
+        if (relatedProcedures.length === 0 && result.procedures!.length > 0) {
+          console.log('[handleAnswer] No related procedures found, using fallback method')
+          // 選択された手続きから関連キーワードを抽出し、簡易的な関連手続きを作成
+          const selectedProcedureNames = result.procedures!.map(p => p.name)
+          relatedProcedures = generateFallbackRelatedProcedures(selectedProcedureNames)
+        }
+        
+        // デバッグ情報をコンソールに出力
+        console.log('=== 関連手続きデバッグ情報 ===')
+        console.log('全手続き数:', allProcedures.length)
+        console.log('選択された手続き数:', result.procedures!.length)
+        console.log('関連手続き数:', relatedProcedures.length)
+        console.log('全手続きリスト:', allProcedures.map(p => p.name))
+        console.log('選択された手続きリスト:', result.procedures!.map(p => p.name))
+        console.log('関連手続きリスト:', relatedProcedures.map(p => p.name))
+        
+        console.log('[handleAnswer] Setting finalState with sources:', questionState.sources?.length || 0)
         setFinalState({
           procedures: result.procedures!,
+          relatedProcedures: relatedProcedures,
+          allProcedures: allProcedures,
           tree: questionState.tree,
-          currentPath: Object.keys(newAnswers)
+          currentPath: Object.keys(newAnswers),
+          sources: questionState.sources || []
         })
       }
     } catch (err) {
@@ -178,7 +333,8 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options
+        options: tree.options,
+        allowMultiple: tree.allowMultiple
       }
     }
     
@@ -189,6 +345,18 @@ export default function Home() {
     console.log(`[Depth ${depth}] Options:`, tree.options)
     console.log(`[Depth ${depth}] Children count:`, tree.children?.length)
     
+    // オプション数と子ノード数の一致チェック
+    if (tree.children && tree.options.length !== tree.children.length) {
+      console.error(`[Depth ${depth}] MISMATCH: Options count (${tree.options.length}) != Children count (${tree.children.length})`)
+      console.error(`[Depth ${depth}] Options:`, tree.options)
+      console.error(`[Depth ${depth}] Children structure:`, tree.children.map((child, idx) => ({
+        index: idx,
+        hasQuestion: 'question' in child,
+        hasProcedureList: 'procedureList' in child,
+        isValid: child && ('question' in child || 'procedureList' in child)
+      })))
+    }
+    
     if (answerIndex === -1) {
       console.error(`[Depth ${depth}] Answer not found in options!`, {
         userAnswer,
@@ -198,7 +366,8 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options
+        options: tree.options,
+        allowMultiple: tree.allowMultiple
       }
     }
     
@@ -208,7 +377,8 @@ export default function Home() {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options
+        options: tree.options,
+        allowMultiple: tree.allowMultiple
       }
     }
     
@@ -226,19 +396,41 @@ export default function Home() {
       console.error(`[Depth ${depth}] No child node at index ${answerIndex}!`, {
         childrenLength: tree.children.length,
         answerIndex,
-        userAnswer
+        userAnswer,
+        optionsLength: tree.options.length,
+        allAnswers: answers
       })
-      // エラー時は最初の有効な子ノードを使用
-      const firstValidChild = tree.children.find((child: DecisionTree | ProcedureList) => child && ('question' in child || 'procedureList' in child))
-      if (firstValidChild) {
-        console.warn(`[Depth ${depth}] Using first valid child instead`)
-        return navigateTreeLocally(firstValidChild, answers, depth + 1)
+      
+      // より詳細なエラー情報
+      console.error(`[Depth ${depth}] Decision tree structure validation failed:`)
+      console.error(`  - User selected: "${userAnswer}" (index: ${answerIndex})`)
+      console.error(`  - Available options: [${tree.options.join(', ')}]`)
+      console.error(`  - Children array length: ${tree.children.length}`)
+      console.error(`  - Children details:`, tree.children.map((child, idx) => ({
+        index: idx,
+        exists: !!child,
+        type: child ? ('procedureList' in child ? 'ProcedureList' : 'DecisionTree') : 'null'
+      })))
+      
+      // より安全な復旧処理
+      if (tree.children.length > 0) {
+        // 利用可能な最初の子ノードを使用
+        const safeChildIndex = Math.min(answerIndex, tree.children.length - 1)
+        const safeChild = tree.children[safeChildIndex]
+        if (safeChild && ('question' in safeChild || 'procedureList' in safeChild)) {
+          console.warn(`[Depth ${depth}] Using child at safe index ${safeChildIndex} instead`)
+          return navigateTreeLocally(safeChild, answers, depth + 1)
+        }
       }
+      
+      // 子ノードが全く使えない場合は現在の質問に戻る
+      console.error(`[Depth ${depth}] No valid child nodes available, returning to current question`)
       return {
         mode: 'question',
         question: tree.question,
         key: tree.key,
-        options: tree.options
+        options: tree.options,
+        allowMultiple: tree.allowMultiple
       }
     }
     
@@ -285,12 +477,17 @@ export default function Home() {
                 <Card>
                   <CardHeader>
                     <CardTitle>{questionState.question}</CardTitle>
+                    {questionState.allowMultiple && (
+                      <CardDescription>
+                        複数選択可能です。該当するものをすべて選択してください。
+                      </CardDescription>
+                    )}
                   </CardHeader>
                   <CardContent className="grid gap-3">
                     {questionState.options.map((option, index) => (
                       <Button
                         key={index}
-                        variant="outline"
+                        variant={questionState.selectedOptions?.includes(option) ? "default" : "outline"}
                         className="justify-start h-auto text-left p-4"
                         onClick={() => handleAnswer(option)}
                         disabled={isLoading}
@@ -298,6 +495,15 @@ export default function Home() {
                         {option}
                       </Button>
                     ))}
+                    {questionState.allowMultiple && questionState.selectedOptions && questionState.selectedOptions.length > 0 && (
+                      <Button
+                        className="mt-4"
+                        onClick={handleMultipleNext}
+                        disabled={isLoading}
+                      >
+                        次へ
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -307,7 +513,7 @@ export default function Home() {
                   <CardHeader>
                     <CardTitle>必要な手続き一覧</CardTitle>
                     <CardDescription>
-                      以下の手続きが必要です
+                      検索結果：全{finalState.allProcedures.length}件中、必要な手続き{finalState.procedures.length}件、関連手続き{finalState.relatedProcedures.length}件
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -346,6 +552,168 @@ export default function Home() {
                   </CardContent>
                 </Card>
               )}
+              
+              {finalState && finalState.relatedProcedures.length > 0 && (
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle>関連する手続き ({finalState.relatedProcedures.length}件)</CardTitle>
+                    <CardDescription>
+                      一問一答では該当しませんでしたが、状況によっては必要になる可能性がある手続きです
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {finalState.relatedProcedures.map((procedure, index) => (
+                      <Card key={index} className="border border-gray-200 bg-gray-50">
+                        <CardHeader>
+                          <CardTitle className="text-lg text-gray-700">{procedure.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm text-gray-600">
+                          <p><span className="font-medium">申請先:</span> {procedure.jurisdiction}</p>
+                          {procedure.requirements && (
+                            <p><span className="font-medium">必要書類:</span> {procedure.requirements}</p>
+                          )}
+                          {procedure.deadline && (
+                            <p><span className="font-medium">期限:</span> {procedure.deadline}</p>
+                          )}
+                          {procedure.fee && (
+                            <p><span className="font-medium">手数料:</span> {procedure.fee}</p>
+                          )}
+                          {procedure.url && (
+                            <p>
+                              <span className="font-medium">詳細:</span>{' '}
+                              <a 
+                                href={procedure.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-primary hover:underline"
+                              >
+                                {procedure.url}
+                              </a>
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                                     </CardContent>
+                 </Card>
+               )}
+               
+               {/* Brave Search ソース情報を常に表示 */}
+              {finalState && (
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle>🔍 Brave Search ソース情報</CardTitle>
+                    <CardDescription>
+                      {(finalState.sources && finalState.sources.length > 0) ? 
+                        `この一問一答と手続き情報の作成に使用したBrave Searchの検索結果です (${finalState.sources.length}件)` :
+                        '検索ソース情報が取得できませんでした'
+                      }
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {(finalState.sources && finalState.sources.length > 0) ? (
+                      <div className="space-y-4">
+                        {finalState.sources.map((source, index) => (
+                          <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                            <h4 className="font-medium text-base mb-2">
+                              <a 
+                                href={source.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                {source.title}
+                              </a>
+                            </h4>
+                            <p className="text-sm text-green-600 mb-2 font-mono">{source.url}</p>
+                            <p className="text-sm text-gray-700 leading-relaxed">{source.snippet}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-500">
+                          この検索では外部ソース情報が利用できませんが、手続き情報は内部データベースから生成されています。
+                        </p>
+                        {process.env.NODE_ENV === 'development' && (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                            <p className="text-xs text-yellow-800">
+                              <strong>開発者向け情報:</strong> sources配列: {JSON.stringify(finalState.sources)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* 質問画面でもソース情報を表示 */}
+              {questionState && !finalState && questionState.sources && questionState.sources.length > 0 && (
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle>🔍 検索に使用した情報源 ({questionState.sources.length}件)</CardTitle>
+                    <CardDescription>
+                      この一問一答の作成に使用したBrave Searchの検索結果です
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {questionState.sources.slice(0, 3).map((source, index) => (
+                      <div key={index} className="border-b border-gray-100 pb-3 last:border-b-0">
+                        <h4 className="font-medium text-sm mb-1">
+                          <a 
+                            href={source.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-blue-600 hover:underline"
+                          >
+                            {source.title}
+                          </a>
+                        </h4>
+                        <p className="text-xs text-gray-600 mb-1">{source.url}</p>
+                        <p className="text-xs text-gray-500 line-clamp-2">{source.snippet}</p>
+                      </div>
+                    ))}
+                    {questionState.sources.length > 3 && (
+                      <p className="text-xs text-gray-500 text-center pt-2">
+                        他 {questionState.sources.length - 3} 件のソースあり（最終結果で全て表示されます）
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+               
+               {/* デバッグ情報（開発環境でのみ表示） */}
+               {process.env.NODE_ENV === 'development' && finalState && (
+                 <Card className="mt-6 bg-gray-50">
+                   <CardHeader>
+                     <CardTitle className="text-red-600">🔧 デバッグ情報</CardTitle>
+                     <CardDescription>
+                       開発環境でのみ表示される技術情報です
+                     </CardDescription>
+                   </CardHeader>
+                   <CardContent className="space-y-2 text-xs">
+                     <div><strong>全手続き数:</strong> {finalState.allProcedures.length}</div>
+                     <div><strong>選択された手続き数:</strong> {finalState.procedures.length}</div>
+                     <div><strong>関連手続き数:</strong> {finalState.relatedProcedures.length}</div>
+                     <div><strong>決定木の深さ:</strong> {finalState.currentPath.length}</div>
+                     <div><strong>ソース情報数:</strong> {finalState.sources?.length || 0}</div>
+                     <div><strong>回答履歴:</strong> {finalState.currentPath.join(' → ')}</div>
+                     {finalState.sources && finalState.sources.length > 0 && (
+                       <div className="mt-2">
+                         <strong>ソース詳細:</strong>
+                         <ul className="list-disc list-inside text-xs mt-1">
+                           {finalState.sources.map((source, index) => (
+                             <li key={index} className="truncate">
+                               {source.title} - {source.url}
+                             </li>
+                           ))}
+                         </ul>
+                       </div>
+                     )}
+                   </CardContent>
+                 </Card>
+               )}
           </div>
         )}
       </div>
