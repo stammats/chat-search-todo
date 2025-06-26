@@ -46,6 +46,7 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
   const [showSkeleton, setShowSkeleton] = useState(false)
   const [isSearchFormCollapsed, setIsSearchFormCollapsed] = useState(false)
+  const [isTitleCollapsed, setIsTitleCollapsed] = useState(false)
 
   // 検索をリセットして元の状態に戻す関数
   const resetToInitialState = () => {
@@ -57,6 +58,7 @@ export default function Home() {
     setAnswers({})
     setShowSkeleton(false)
     setIsSearchFormCollapsed(false)
+    setIsTitleCollapsed(false)
   }
 
   // 決定木から全手続きを収集する関数
@@ -202,8 +204,9 @@ export default function Home() {
     setFinalState(null)
     setAnswers({})
     
-    // 検索フォームをcollapseし、スケルトンローダーを表示
+    // 検索フォームとタイトルをcollapseし、スケルトンローダーを表示
     setIsSearchFormCollapsed(true)
+    setIsTitleCollapsed(true)
     setTimeout(() => setShowSkeleton(true), 300) // アニメーション後にスケルトンを表示
     
     try {
@@ -215,7 +218,7 @@ export default function Home() {
         '必要書類や申請方法を調査中...',
         '手数料や期限情報を収集中...',
         '検索結果を整理中...',
-        '質問ツリーを生成中...'
+        '手続きガイドを生成中...'
       ]
       
       let statusIndex = 0
@@ -561,6 +564,7 @@ export default function Home() {
     <main className="min-h-screen bg-background py-12 mt-10">
       <div className="container max-w-2xl mx-auto px-4">
         <div className="mb-8">
+          {/* 芋づるマスコット画像（常に表示） */}
           <div className="flex justify-center mb-4">
             <div 
               className={`w-32 h-32 bg-[url('/imoduru.png')] bg-contain bg-no-repeat bg-center transition-all duration-300 ${
@@ -572,10 +576,16 @@ export default function Home() {
               aria-label="芋づるマスコット"
             />
           </div>
-          <h1 className="text-4xl font-bold text-center mb-2">
-            行政手続き芋づる検索
-          </h1>
-          <p className='text-center text-gray-500'>最短10秒! 一つの検索で関連手続きを芋づる式に一気に確認</p>
+          
+          {/* タイトルと説明文（検索時は非表示） */}
+          <div className={`transition-all duration-500 overflow-hidden ${
+            isTitleCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'
+          }`}>
+            <h1 className="text-4xl font-bold text-center mb-2">
+              行政手続き芋づる検索
+            </h1>
+            <p className='text-center text-gray-500'>最短10秒! 一つの検索で関連手続きを芋づる式に一気に確認</p>
+          </div>
         </div>
         <SearchForm 
           onSearch={handleSearch} 
@@ -616,6 +626,7 @@ export default function Home() {
                 onClick={() => {
                   setError(null)
                   setIsSearchFormCollapsed(false)
+                  setIsTitleCollapsed(false)
                   setShowSkeleton(false)
                 }}
               >
